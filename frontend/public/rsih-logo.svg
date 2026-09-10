@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 64" role="img" aria-labelledby="title desc">
+  <title id="title">RSIH Intan Husada</title>
+  <desc id="desc">Logo Rumah Sakit Intan Husada</desc>
+  <circle cx="32" cy="32" r="29" fill="#fff"/>
+  <path d="M32 15v34M15 32h34" stroke="#16b5a5" stroke-width="7" stroke-linecap="round"/>
+  <text x="72" y="38" fill="#fff" font-family="Arial,sans-serif" font-size="30" font-weight="700" letter-spacing="2">RSIH</text>
+  <text x="74" y="53" fill="#d6fff7" font-family="Arial,sans-serif" font-size="7" letter-spacing="2">INTAN HUSADA</text>
+</svg>
