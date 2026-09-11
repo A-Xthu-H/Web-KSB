@@ -1,6 +1,6 @@
 ﻿# Frontend Web KSB / RSIH
 
-Frontend ini adalah website Rumah Sakit Intan Husada Garut yang dibuat dengan React dan Vite. Halaman mengikuti struktur dan konten referensi RSIH, dengan navigasi berbasis hash agar dapat berjalan tanpa router tambahan.
+Frontend ini adalah website Klinik Sehat Bagendit Garut yang dibuat dengan React dan Vite. Halaman mengikuti struktur dan konten referensi RSIH, dengan navigasi berbasis hash agar dapat berjalan tanpa router tambahan.
 
 ## Menjalankan Project
 
