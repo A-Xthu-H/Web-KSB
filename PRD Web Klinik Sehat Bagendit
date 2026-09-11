@@ -1,0 +1,162 @@
+# Product Requirements Document (PRD)
+
+## Aplikasi Web Klinik Sehat Bagendit
+
+|  |  |
+| --- | --- |
+| **Nama Produk** | Aplikasi Web Klinik Sehat Bagendit |
+| **Jenis Dokumen** | PRD (Product Requirements Document) |
+| **Repositori** | [https://github.com/A-Xthu-H/Web-KSB.git](https://github.com/A-Xthu-H/Web-KSB.git) |
+
+---
+
+## 1. Latar Belakang & Tujuan
+
+### 1.1 Latar Belakang
+
+Klinik Sehat Bagendit membutuhkan platform digital untuk meningkatkan visibilitas dan jangkauan informasi. Saat ini, penyebaran informasi terkait layanan, jadwal operasional, dan keunggulan klinik masih terbatas. Aplikasi web ini dibangun sebagai media publikasi utama agar informasi klinik dapat tersebar luas dan diakses mudah oleh publik, sekaligus memperkuat eksistensi digital Klinik Sehat Bagendit.
+
+### 1.2 Tujuan Produk
+
+* Menjadi media *company profile* dan pusat informasi digital utama klinik.
+* Menyediakan informasi terstruktur mengenai profil, layanan kesehatan, dan fasilitas umum (kantin, mushola, area parkir).
+* Meningkatkan kepercayaan publik dengan menampilkan portofolio, mitra kerja sama, penghargaan, dan akreditasi.
+* Menyediakan informasi terkini daftar dokter dan jadwal praktiknya.
+* Menjadi wadah edukasi melalui publikasi artikel kesehatan.
+* Menyediakan halaman informasi karier untuk menjangkau kandidat profesional.
+
+### 1.3 Target Pengguna
+
+* **Pengunjung / Masyarakat Umum:** Mengakses website untuk mencari informasi layanan, jadwal dokter, artikel kesehatan, dan lowongan pekerjaan.
+* **Admin Klinik:** Memiliki akses login ke *Content Management System* (CMS) untuk mengelola konten website secara mandiri tanpa mengubah kode program.
+
+---
+
+## 2. Ruang Lingkup (Scope)
+
+### 2.1 Halaman Publik (Front-End)
+
+* **Beranda (Home):** Ringkasan layanan, *hero banner*, dan pembaruan terkini.
+* **Profil / Tentang Kami:** Sejarah, visi misi, jajaran manajemen, dan pencapaian.
+* **Fasilitas & Layanan:** Pelayanan medis (Poliklinik, Rawat Inap, IGD, dll) dan fasilitas umum.
+* **Jadwal Dokter:** Direktori nama dokter, spesialisasi, beserta hari dan jam praktik.
+* **Mitra Klinik:** Logo dan informasi instansi/perusahaan kerja sama.
+* **Artikel / Berita:** Publikasi acara, promosi kesehatan, dan edukasi medis.
+* **Karier / Lowongan Kerja:** Informasi rekrutmen posisi yang sedang dibuka.
+* **Kontak Kami:** Alamat lengkap, nomor IGD, tautan WhatsApp pendaftaran, dan integrasi Google Maps.
+
+### 2.2 Halaman Admin (CMS/Back-End)
+
+* **Autentikasi:** Login dan logout khusus admin.
+* **Manajemen Beranda:** Mengubah *banner* utama dan teks sambutan.
+* **Manajemen Profil & Mitra:** Mengedit sejarah, visi misi, manajemen, akreditasi, dan logo mitra.
+* **Manajemen Layanan & Fasilitas:** CRUD layanan medis dan fasilitas beserta foto.
+* **Manajemen Dokter & Jadwal:** CRUD profil dokter dan jadwal praktik.
+* **Manajemen Publikasi:** CRUD Artikel kesehatan dan Lowongan Pekerjaan.
+* **Pengaturan Umum:** Mengubah detail alamat, kontak WhatsApp, dan koordinat maps.
+
+---
+
+## 3. Tech Stack
+
+* **Frontend:** React + Vite + Tailwind CSS (diperkuat `react-helmet` untuk SEO).
+* **Backend:** Express.js (Node.js).
+* **Database:** MySQL atau PostgreSQL (ideal untuk stabilitas *deployment* publik).
+* **Manajemen Media:** Cloudinary (API) untuk penyimpanan gambar.
+* **Hosting / Deployment:** VPS (Virtual Private Server) / Layanan Cloud.
+
+---
+
+## 4. User Stories
+
+| ID | Sebagai | Saya ingin | Agar |
+| --- | --- | --- | --- |
+| US-01 | Pengunjung | Melihat halaman utama (Beranda) | Mengetahui ringkasan layanan, promo, dan pembaruan terkini. |
+| US-02 | Pengunjung | Membaca profil dan melihat mitra | Mengetahui latar belakang, manajemen, penghargaan, dan kredibilitas klinik. |
+| US-03 | Pengunjung | Melihat detail fasilitas dan layanan | Tahu persis fasilitas medis dan umum yang tersedia. |
+| US-04 | Pengunjung | Mencari jadwal dokter spesialis | Bisa merencanakan kedatangan tanpa harus menelepon. |
+| US-05 | Pengunjung | Membaca artikel dan lowongan kerja | Mendapat informasi medis atau peluang karier. |
+| US-06 | Pengunjung | Mengakses halaman Kontak Kami | Menemukan alamat peta dan WhatsApp untuk pendaftaran. |
+| US-07 | Admin | Masuk (login) ke sistem CMS | Mengelola website dengan aman secara eksklusif. |
+| US-08 | Admin | Mengelola jadwal & data dokter | Tabel jadwal praktik di halaman publik selalu akurat. |
+| US-09 | Admin | Mempublikasikan artikel & lowongan | Membagikan pengumuman secara mandiri tanpa bantuan *developer*. |
+| US-10 | Admin | Mengubah informasi profil & kontak | Identitas, WhatsApp, dan lokasi Maps selalu mutakhir. |
+
+---
+
+## 5. Kebutuhan Fungsional (Functional Requirements)
+
+### 5.1 Halaman Publik (Front-End)
+
+* **FR-1.1:** Sistem menampilkan beranda dengan *banner* dinamis dan ringkasan layanan.
+* **FR-1.2:** Sistem menampilkan halaman profil, sejarah, akreditasi, dan mitra klinik.
+* **FR-1.3:** Sistem menampilkan daftar layanan medis dan fasilitas umum beserta deskripsi/foto.
+* **FR-1.4:** Sistem menampilkan direktori dokter memuat foto, spesialisasi, dan jadwal harian.
+* **FR-1.5:** Sistem menampilkan halaman artikel kesehatan dan lowongan pekerjaan.
+* **FR-1.6:** Sistem mengintegrasikan Google Maps dan tombol *direct link* ke WhatsApp pada halaman kontak.
+
+### 5.2 Autentikasi Admin
+
+* **FR-2.1:** Sistem menyediakan login email/password terenkripsi (bcrypt).
+* **FR-2.2:** Sistem melindungi rute CMS; menolak akses tanpa token sesi valid (JWT).
+* **FR-2.3:** Sistem memfasilitasi *logout* aman.
+
+### 5.3 Manajemen Konten (CMS)
+
+* **FR-3.1:** Admin mengelola konfigurasi umum (*banner*, teks sambutan, maps, kontak).
+* **FR-3.2:** Admin menambah, mengubah, menghapus data Layanan, Fasilitas, dan Mitra.
+* **FR-3.3:** Admin mengelola entitas Dokter dan Jadwal Praktik.
+* **FR-3.4:** Admin membuat/mengedit Artikel menggunakan *Rich Text Editor*.
+* **FR-3.5:** Admin menambah dan mengubah status Lowongan Pekerjaan (Buka/Tutup).
+
+---
+
+## 6. Kebutuhan Non-Fungsional
+
+* **Ketersediaan:** Akses publik 24/7 dengan *uptime* server minimal 99%.
+* **Performa:** Waktu muat di bawah 3 detik. Aset gambar dikompresi (via Cloudinary).
+* **Keamanan:** Password di-*hash*. API CRUD dilindungi token JWT. Perlindungan terhadap injeksi SQL/XSS.
+* **Responsivitas:** UI berfungsi optimal pada desktop, tablet, dan smartphone.
+* **SEO:** Penggunaan *meta tags*, *semantic* HTML, dan atribut gambar untuk visibilitas mesin pencari.
+
+---
+
+## 7. Skema Data (Ringkasan Entitas)
+
+* **Users:** id, nama_lengkap, email, password_hash, role, timestamps.
+* **Doctors:** id, nama_dokter, spesialisasi, foto_url, deskripsi, status_aktif.
+* **Schedules:** id, doctor_id (FK), hari, jam_mulai, jam_selesai, status_aktif.
+* **Services & Facilities:** id, kategori, nama, deskripsi, foto_url.
+* **Articles:** id, judul, slug, konten, thumbnail_url, penulis_id (FK), status.
+* **Job_Vacancies:** id, posisi, deskripsi_pekerjaan, persyaratan, status.
+* **Partners:** id, nama_mitra, logo_url, jenis.
+* **Settings:** id, kunci_pengaturan (contoh: *no_whatsapp*, *hero_banner*), nilai.
+
+---
+
+## 8. Alur Utama (User Flow)
+
+### 8.1 Alur Eksplorasi Publik
+
+* Pengunjung membuka website Klinik Sehat Bagendit.
+* Mengeksplorasi Beranda untuk pembaruan terkini.
+* Membuka Profil atau Fasilitas untuk memastikan ketersediaan layanan.
+* Mencari hari/jam spesifik di menu Jadwal Dokter.
+* Membuka Kontak Kami untuk panduan rute via Maps atau klik WhatsApp untuk mendaftar.
+
+### 8.2 Alur Admin (Privat)
+
+* Admin mengakses URL khusus tersembunyi (misal: `/admin-login`).
+* Validasi email/password → Sistem membuka akses *dashboard* CMS.
+* Admin melakukan pembaruan (contoh: tambah dokter, unggah artikel).
+* Perubahan tersimpan di *database* dan otomatis mengubah tampilan publik *real-time*.
+* Admin menekan *logout* untuk mengamankan sistem.
+
+---
+
+## 9. Kriteria Keberhasilan (Definition of Done)
+
+* **Fungsionalitas Publik Selesai:** Seluruh halaman dapat diakses cepat, tanpa *error*, dan responsif di semua perangkat.
+* **Sistem CMS Berjalan Penuh:** Seluruh operasi CRUD untuk entitas konten dinamis berfungsi sempurna.
+* **Keamanan Terjamin:** Rute CMS terproteksi absolut dari akses tanpa login; media terintegrasi sukses dengan *cloud storage*.
+* **Deployment Sukses:** *Frontend*, *Backend*, dan *Database* berhasil di-*deploy* ke server publik, beroperasi stabil melalui domain resmi.
