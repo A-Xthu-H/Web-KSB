@@ -1,18 +1,35 @@
-import sqlite3 from 'sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { Sequelize } from 'sequelize';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const sqlite = sqlite3.verbose();
-const dbPath = path.resolve(__dirname, '../../database.sqlite');
-const db = new sqlite.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Gagal terhubung ke database:', err.message);
-  } else {
-    console.log('Berhasil terhubung ke database SQLite.');
+const sequelize = new Sequelize(
+  process.env.DB_NAME || 'klinik_sehat_bagendit',
+  process.env.DB_USER || 'root',
+  process.env.DB_PASSWORD || '',
+  {
+    host: process.env.DB_HOST || '127.0.0.1',
+    port: Number(process.env.DB_PORT) || 3306,
+    dialect: process.env.DB_DIALECT || 'mysql',
+    logging: process.env.DB_LOGGING === 'true' ? console.log : false,
+    define: {
+      underscored: true,
+      timestamps: true,
+    },
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
+    },
   }
-});
+);
 
-export default db;
+export const connectDB = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Berhasil terhubung ke database MySQL.');
+  } catch (error) {
+    console.error('Gagal terhubung ke database:', error.message);
+    process.exit(1);
+  }
+};
+
+export default sequelize;

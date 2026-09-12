@@ -4,6 +4,7 @@ import {
     DoctorsPage, DoctorProfilePage, FacilitiesPage, InformationPage, navItems,
     PartnersPage, ReferenceHome, ServicesPage, SiteFooter, KaryawanPage, KaryawanProfilePage
 } from './pages/index.jsx';
+import AdminApp from './admin/AdminApp.jsx';
 
 function App() {
     const [activeRoom, setActiveRoom] = useState(0);
@@ -16,6 +17,11 @@ function App() {
         window.addEventListener('hashchange', handleHashChange);
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
+
+    // Halaman admin (CMS) tidak memakai layout publik.
+    if (page === 'admin' || page === 'admin-login') {
+        return <AdminApp />;
+    }
 
     const isHome = page === 'home' || page === 'top';
     const isDoctorProfile = page.startsWith('dokter-profile-');
