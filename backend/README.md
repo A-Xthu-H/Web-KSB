@@ -9,7 +9,7 @@ Catatan kecil
 Rich Text Editor: saat ini artikel pakai textarea HTML polos (back-end sudah simpan HTML). Editor WYSIWYG sesungguhnya bisa ditambah di FASE 5 (polishing) bila Anda mau.
 Dev server: proses sementara sudah saya hentikan lagi. Untuk menjalankan: cd frontend && npm run dev dan cd backend && npm run dev di terminal Laragon Anda.
 
-## ini li promt buat lanjutin AI saya habis ##
+## ini li promt buat lanjutin, AI saya habis ##
 
 suruh dia plajarain dulu prd sama projek sekarang trus liat hasilnya habis itu baru copy paste yg di bawah
 
