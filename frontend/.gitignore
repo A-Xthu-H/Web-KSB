@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Build output
+dist/
+dist-ssr/
+
 # Environment
 .env
 .env.local
@@ -9,12 +13,10 @@ node_modules/
 # Logs
 *.log
 npm-debug.log*
-srv.log
-srv.err.log
 
-# Upload lokal (fallback Cloudinary)
-public/uploads/
-
-# OS
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
 .DS_Store
 Thumbs.db

@@ -108,4 +108,19 @@ export const entities = {
     listFields: ['id', 'nama', 'email', 'isi', 'dibaca'],
     fields: [],
   },
+  contents: {
+    label: 'Konten Halaman',
+    endpoint: '/contents',
+    idField: 'id',
+    // Hanya bisa diedit (tidak menambah/menghapus) karena section sudah tetap.
+    noCreate: true,
+    noDelete: true,
+    listFields: ['id', 'section', 'title'],
+    fields: [
+      { name: 'section', label: 'Section (kunci, jangan diubah)', type: 'text', required: true },
+      { name: 'title', label: 'Judul', type: 'text', required: true },
+      { name: 'body', label: 'Isi (format: Judul::Deskripsi dipisah ||)', type: 'textarea', required: true },
+      { name: 'imageUrl', label: 'Gambar', type: 'image' },
+    ],
+  },
 };

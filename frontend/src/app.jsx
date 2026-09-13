@@ -5,6 +5,27 @@ import {
     PartnersPage, ReferenceHome, ServicesPage, SiteFooter, KaryawanPage, KaryawanProfilePage
 } from './pages/index.jsx';
 import AdminApp from './admin/AdminApp.jsx';
+import Seo from './components/Seo.jsx';
+
+// Judul & deskripsi SEO per halaman (bab 6 PRD).
+const SEO_HALAMAN = {
+    home: { title: null, description: 'Pusat layanan kesehatan primer yang berkualitas, nyaman, dan bersahabat di Banyuresmi, Garut.' },
+    sejarah: { title: 'Sejarah Klinik' },
+    'visi-misi': { title: 'Visi dan Misi' },
+    struktur: { title: 'Struktur Organisasi' },
+    penghargaan: { title: 'Akreditasi & Penghargaan' },
+    'rekanan-mitra': { title: 'Rekanan dan Mitra' },
+    dokter: { title: 'Daftar Dokter', description: 'Direktori dokter dan jadwal praktik Klinik Sehat Bagendit.' },
+    karyawan: { title: 'Direktori Karyawan' },
+    'jenis-pelayanan': { title: 'Layanan & Poliklinik', description: 'Berbagai layanan kesehatan profesional untuk Anda dan keluarga.' },
+    'rawat-jalan': { title: 'Rawat Jalan' },
+    'poli-gigi': { title: 'Poliklinik Gigi' },
+    'fasilitas-um': { title: 'Fasilitas Umum' },
+    blog: { title: 'Blog & Artikel Kesehatan', description: 'Informasi kesehatan, kabar terbaru, dan tips dari Klinik Sehat Bagendit.' },
+    'blog-tonsil': { title: 'Kenali Tonsil Hipertrofi' },
+    karir: { title: 'Karir & Lowongan Kerja', description: 'Informasi rekrutmen dan lowongan pekerjaan Klinik Sehat Bagendit.' },
+    kontak: { title: 'Kontak Kami', description: 'Alamat, nomor telepon, WhatsApp, dan lokasi peta Klinik Sehat Bagendit.' },
+};
 
 function App() {
     const [activeRoom, setActiveRoom] = useState(0);
@@ -28,17 +49,21 @@ function App() {
     const doctorProfileId = page.split('-').pop();
     const isKaryawanProfile = page.startsWith('karyawan-profile-');
     const karyawanProfileId = page.split('-').pop();
+    // Rute artikel dinamis: #blog-<slug> (selain #blog-tonsil yang statis).
+    const isBlogDetail = page === 'blog-tonsil' || (page.startsWith('blog-') && page !== 'blog');
+    const blogSlug = isBlogDetail ? page.replace(/^blog-/, '') : null;
 
     const renderPage = () => {
         if (isHome) {
-            return <ReferenceHome 
-                activeRoom={activeRoom} setActiveRoom={setActiveRoom} 
-                roomStart={roomStart} setRoomStart={setRoomStart} 
-                activeTestimonial={activeTestimonial} setActiveTestimonial={setActiveTestimonial} 
+            return <ReferenceHome
+                activeRoom={activeRoom} setActiveRoom={setActiveRoom}
+                roomStart={roomStart} setRoomStart={setRoomStart}
+                activeTestimonial={activeTestimonial} setActiveTestimonial={setActiveTestimonial}
             />;
         }
         if (isDoctorProfile) return <DoctorProfilePage doctorId={doctorProfileId} />;
         if (isKaryawanProfile) return <KaryawanProfilePage karyawanId={karyawanProfileId} />;
+        if (isBlogDetail) return <BlogDetailPage slug={blogSlug} />;
 
         switch (page) {
             case 'sejarah':
@@ -47,7 +72,7 @@ function App() {
             case 'penghargaan': return <AboutPage page={page} />;
             case 'rekanan-mitra': return <PartnersPage />;
             case 'dokter': return <DoctorsPage />;
-            case 'karyawan': return <KaryawanPage />;   
+            case 'karyawan': return <KaryawanPage />;
             case 'jenis-pelayanan':
             case 'rawat-jalan': return <ServicesPage />;
             case 'poli-gigi': return <DentalClinicPage />;
@@ -55,7 +80,6 @@ function App() {
             case 'karir': return <CareersPage />;
             case 'kontak': return <ContactPage />;
             case 'blog': return <BlogPage />;
-            case 'blog-tonsil': return <BlogDetailPage />;
             default: return <InformationPage page={page} />;
         }
     };
@@ -63,6 +87,8 @@ function App() {
     return (
         <div className="site-shell min-h-screen flex flex-col">
             
+            <Seo title={SEO_HALAMAN[page]?.title} description={SEO_HALAMAN[page]?.description} />
+
             {/* --- UTILITY BAR --- */}
             <div className="utility-bar w-full">
                 <div className="utility-inner container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">

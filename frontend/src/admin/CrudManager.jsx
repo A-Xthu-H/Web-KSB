@@ -116,7 +116,7 @@ export default function CrudManager({ entity }) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-slate-800">{entity.label}</h2>
-        {!entity.readOnly && (
+        {!entity.readOnly && !entity.noCreate && (
           <button
             onClick={openCreate}
             className="bg-green-700 hover:bg-green-800 text-white text-sm font-semibold px-4 py-2 rounded-lg"
@@ -161,7 +161,9 @@ export default function CrudManager({ entity }) {
                     ) : (
                       <>
                         <button onClick={() => openEdit(item)} className="text-green-700 hover:underline mr-3">Edit</button>
-                        <button onClick={() => handleDelete(item)} className="text-red-600 hover:underline">Hapus</button>
+                        {!entity.noDelete && (
+                          <button onClick={() => handleDelete(item)} className="text-red-600 hover:underline">Hapus</button>
+                        )}
                       </>
                     )}
                   </td>

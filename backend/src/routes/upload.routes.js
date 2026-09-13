@@ -1,21 +1,27 @@
 import express from 'express';
-import { upload } from '../middlewares/upload.middleware.js';
+import { upload, simpanGambar } from '../middlewares/upload.middleware.js';
 import { verifyToken } from '../middlewares/auth.middleware.js';
 import { sendResponse } from '../utils/responseHandler.js';
 
 const router = express.Router();
 
-// POST /api/uploads  (admin) — unggah satu file gambar, kembalikan URL-nya.
-router.post('/', verifyToken, upload.single('gambar'), (req, res) => {
+// POST /api/uploads  (admin) — unggah satu file gambar.
+// Otomatis ke Cloudinary bila dikonfigurasi, jika tidak disimpan lokal.
+router.post('/', verifyToken, upload.single('gambar'), async (req, res) => {
   if (!req.file) {
     return sendResponse(res, 400, 'Tidak ada file yang diunggah');
   }
-  const url = `/uploads/${req.file.filename}`;
-  sendResponse(res, 201, 'File berhasil diunggah', {
-    filename: req.file.filename,
-    url,
-    size: req.file.size,
-  });
+  try {
+    const { url, provider, filename } = await simpanGambar(req.file);
+    sendResponse(res, 201, 'File berhasil diunggah', {
+      filename,
+      url,
+      provider,
+      size: req.file.size,
+    });
+  } catch (error) {
+    sendResponse(res, 500, 'Gagal mengunggah gambar', error.message);
+  }
 });
 
 export default router;

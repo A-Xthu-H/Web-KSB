@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { usePublicApi, formatTanggal, ambilSetting, ambilKonten, uraiKartu } from '../api/publicApi.js'
 
 const rooms = [
 	{ name: 'Rawat Inap', price: 'Tarif: hubungi klinik', detail: 'Total kapasitas 12 bed', tone: 'mint', image: '/room-suite.svg' },
@@ -104,7 +105,15 @@ const pageBottomActions = {
 }
 
 export function InformationPage({ page }) {
-	const content = pageData[page] || pageData['tentang-kami']
+	const { data } = usePublicApi('/contents')
+	const konten = ambilKonten(data, page)
+
+	const statis = pageData[page] || pageData['tentang-kami']
+	// Gunakan konten dari API bila tersedia, jika tidak pakai data statis.
+	const kartuDariApi = konten ? uraiKartu(konten.body) : null
+	const content = konten
+	? { eyebrow: statis.eyebrow, title: konten.title || statis.title, intro: statis.intro, cards: kartuDariApi || statis.cards }
+	: statis
 	const links = pageCardLinks[page] || pageCardLinks['tentang-kami']
 	const labels = pageActionLabels[page] || ['Selengkapnya', 'Selengkapnya', 'Selengkapnya']
 	const bottomAction = pageBottomActions[page] || ['#kontak', 'Hubungi Kami']
@@ -117,15 +126,30 @@ export function InformationPage({ page }) {
 }
 
 export function AboutPage({ page }) {
+	const { data } = usePublicApi('/contents')
+
 	if (page === 'sejarah') {
-		return <section className="reference-page about-history container">
-			<PageHeading eyebrow="Klinik Sehat Bagendit" title="SEJARAH KLINIK" />
-			<div className="history-intro"><img src="/logo-ksb.png" alt="Logo Klinik Sehat Bagendit" /><div className="history-copy"><article><h2>Berawal pada 2006</h2><p>Klinik Sehat Bagendit berawal dari dibukanya dokter praktik pribadi pada tahun 2006.</p></article><article><h2>Balai Pengobatan pada 2010</h2><p>Pada 17 Mei 2010, didirikan balai pengobatan di Jalan Hasan Arif No. 222, Kampung Parigi, Desa Banyuresmi, Kecamatan Banyuresmi, Kabupaten Garut.</p></article><article><h2>Lokasi Klinik Sejak 2017</h2><p>Pada tahun 2017, bangunan Klinik Sehat Bagendit berdiri di Jalan Terusan Cinunuk No. 9, Kampung Babakan Baru, Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut.</p></article></div></div>
-		</section>
+	const konten = ambilKonten(data, 'sejarah')
+	const kartuApi = konten ? uraiKartu(konten.body) : null
+	const daftarSejarah = kartuApi || [
+	['Berawal pada 2006', 'Klinik Sehat Bagendit berawal dari dibukanya dokter praktik pribadi pada tahun 2006.'],
+	['Balai Pengobatan pada 2010', 'Pada 17 Mei 2010, didirikan balai pengobatan di Jalan Hasan Arif No. 222, Kampung Parigi, Desa Banyuresmi, Kecamatan Banyuresmi, Kabupaten Garut.'],
+	['Lokasi Klinik Sejak 2017', 'Pada tahun 2017, bangunan Klinik Sehat Bagendit berdiri di Jalan Terusan Cinunuk No. 9, Kampung Babakan Baru, Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut.'],
+	]
+	return <section className="reference-page about-history container">
+	<PageHeading eyebrow="Klinik Sehat Bagendit" title="SEJARAH KLINIK" />
+	<div className="history-intro"><img src="/logo-ksb.png" alt="Logo Klinik Sehat Bagendit" /><div className="history-copy">{daftarSejarah.map(([judul, teks]) => <article key={judul}><h2>{judul}</h2><p>{teks}</p></article>)}</div></div>
+	</section>
 	}
 
 	if (page === 'visi-misi') {
-		return <section className="reference-page about-vision container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="VISI DAN MISI" /><h2 className="commitment-title">KOMITMEN KAMI DALAM MEMBERIKAN PELAYANAN KESEHATAN PRIMER</h2><div className="vision-panels"><article><h2>VISI</h2><p>&quot;Menjadi pusat layanan kesehatan primer yang Berkualitas, Nyaman, dan Bersahabat di Wilayah Kecamatan Banyuresmi dan sekitarnya.&quot;</p></article><article><h2>MISI</h2><ul><li>Melandasi setiap aktivitas pelayanan sebagai ibadah kepada Allah SWT.</li><li>Menyediakan layanan medik dasar bagi pasien umum dan BPJS Kesehatan.</li><li>Melayani dengan Senyum, Salam, Sapa, Sabar, Cepat, Tepat, dan penuh Simpati.</li><li>Meningkatkan pengetahuan serta keterampilan agar profesional dalam bekerja.</li><li>Menyediakan fasilitas yang lengkap dan berkualitas, serta lingkungan yang bersih, aman, nyaman, dan bersahabat.</li></ul></article></div><section className="management-section"><PageHeading eyebrow="Motto Klinik" title="SAHABAT SEHAT KELUARGA ANDA" /></section></section>
+	const konten = ambilKonten(data, 'visi-misi')
+	const kartu = konten ? uraiKartu(konten.body) : null
+	const cariKartu = (nama) => kartu?.find(([j]) => j.toLowerCase().includes(nama))?.[1]
+	const visi = cariKartu('visi') || 'Menjadi pusat layanan kesehatan primer yang Berkualitas, Nyaman, dan Bersahabat di Wilayah Kecamatan Banyuresmi dan sekitarnya.'
+	const misiRaw = cariKartu('misi') || 'Melandasi setiap aktivitas pelayanan sebagai ibadah kepada Allah SWT.; Menyediakan layanan medik dasar bagi pasien umum dan BPJS Kesehatan.; Melayani dengan Senyum, Salam, Sapa, Sabar, Cepat, Tepat, dan penuh Simpati.; Meningkatkan pengetahuan serta keterampilan agar profesional dalam bekerja.; Menyediakan fasilitas yang lengkap dan berkualitas.'
+	const misi = misiRaw.split(';').map((m) => m.trim()).filter(Boolean)
+	return <section className="reference-page about-vision container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="VISI DAN MISI" /><h2 className="commitment-title">KOMITMEN KAMI DALAM MEMBERIKAN PELAYANAN KESEHATAN PRIMER</h2><div className="vision-panels"><article><h2>VISI</h2><p>{visi}</p></article><article><h2>MISI</h2><ul>{misi.map((m) => <li key={m}>{m}</li>)}</ul></article></div><section className="management-section"><PageHeading eyebrow="Motto Klinik" title="SAHABAT SEHAT KELUARGA ANDA" /></section></section>
 	}
 
 	if (page === 'struktur') {
@@ -240,25 +264,58 @@ function ManagementCard({ image, name, role }) {
 }
 
 export function PartnersPage() {
-	return <section className="reference-page partners-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="REKANAN DAN MITRA" /><p className="reference-lead">Klinik Sehat Bagendit telah bekerja sama dengan:</p><div className="partner-grid">{partners.map((partner, index) => <article className={`partner-card partner-${index % 6}`} key={partner}><span>{partner.split(' ').map((word) => word[0]).join('').slice(0, 3)}</span><strong>{partner}</strong></article>)}</div></section>
+	const { data } = usePublicApi('/partners')
+
+	const daftar = Array.isArray(data) && data.length > 0 ? data.map((p) => p.nama_mitra) : partners
+	return <section className="reference-page partners-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="REKANAN DAN MITRA" /><p className="reference-lead">Klinik Sehat Bagendit telah bekerja sama dengan:</p><div className="partner-grid">{daftar.map((partner, index) => <article className={`partner-card partner-${index % 6}`} key={partner}><span>{partner.split(' ').map((word) => word[0]).join('').slice(0, 3)}</span><strong>{partner}</strong></article>)}</div></section>
 }
+
+// Memetakan data dokter dari API ke bentuk yang dipakai komponen.
+const mapDokter = (d) => ({
+	id: d.id,
+	name: d.nama_dokter,
+	specialty: d.spesialisasi || 'Dokter',
+	deskripsi: d.deskripsi || '',
+	image: d.foto_url || '/hospital-hero.svg',
+	schedules: d.schedules || [],
+})
 
 export function DoctorsPage() {
 	const [query, setQuery] = useState('')
-	const filteredDoctors = doctors.filter((doctor) => `${doctor.name} ${doctor.specialty}`.toLowerCase().includes(query.toLowerCase()))
+	const { data } = usePublicApi('/doctors')
 
-	return <section className="reference-page doctors-page container"><div className="doctors-heading"><PageHeading eyebrow="Klinik Sehat Bagendit" title="DOKTER" /><p>Direktori tenaga kesehatan Klinik Sehat Bagendit.</p></div><form className="doctor-search" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama atau bidang..." aria-label="Cari karyawan" /><button type="submit">Cari</button></form><div className="doctor-grid">{filteredDoctors.map((doctor) => <article className="doctor-card" key={doctor.id}><img src={doctor.image} alt={doctor.name} /><div className="doctor-card-body"><h2>{doctor.name}</h2><p>{doctor.specialty}</p><a href={`#dokter-profile-${doctor.id}`}>Lihat Profil</a></div></article>)}</div>{filteredDoctors.length === 0 && <p className="empty-search">Karyawan tidak ditemukan. Coba kata kunci lain.</p>}</section>
+	const sumber = Array.isArray(data) && data.length > 0 ? data.map(mapDokter) : doctors
+	const filteredDoctors = sumber.filter((doctor) => `${doctor.name} ${doctor.specialty}`.toLowerCase().includes(query.toLowerCase()))
+
+	return <section className="reference-page doctors-page container"><div className="doctors-heading"><PageHeading eyebrow="Klinik Sehat Bagendit" title="DOKTER" /><p>Direktori tenaga kesehatan Klinik Sehat Bagendit.</p></div><form className="doctor-search" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama atau bidang..." aria-label="Cari karyawan" /><button type="submit">Cari</button></form><div className="doctor-grid">{filteredDoctors.map((doctor) => <article className="doctor-card" key={doctor.id}><img src={doctor.image} alt={doctor.name} /><div className="doctor-card-body"><h2>{doctor.name}</h2><p>{doctor.specialty}</p><a href={`#dokter-profile-${doctor.id}`}>Lihat Profil</a></div></article>)}</div>{filteredDoctors.length === 0 && <p className="empty-search">Dokter tidak ditemukan. Coba kata kunci lain.</p>}</section>
 }
 
 export function DoctorProfilePage({ doctorId }) {
-	const doctor = doctors.find((item) => item.id === Number(doctorId)) || doctors[1]
+	const { data } = usePublicApi(`/doctors/${doctorId}`)
+	const apiDoctor = Array.isArray(data) ? data[0] : data
+	const doctor = apiDoctor ? mapDokter(apiDoctor) : (doctors.find((item) => item.id === Number(doctorId)) || doctors[1] || doctors[0])
 
-	return <section className="reference-page doctor-profile-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="PROFIL DOKTER" /><div className="doctor-profile-card"><div className="profile-photo"><img src={doctor.image} alt={doctor.name} /><a href="#dokter">Kembali ke Daftar Dokter</a></div><div className="profile-copy"><h1>{doctor.name}</h1><span className="specialty-pill">{doctor.specialty}</span><section><h2>Profil</h2><p>Informasi profil dan kompetensi akan diperbarui oleh admin klinik.</p></section><section><h2>Jadwal</h2><p>Jadwal layanan dapat diperbarui saat data tersedia.</p></section></div></div></section>
+	const jadwal = doctor.schedules || []
+
+	return <section className="reference-page doctor-profile-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="PROFIL DOKTER" /><div className="doctor-profile-card"><div className="profile-photo"><img src={doctor.image} alt={doctor.name} /><a href="#dokter">Kembali ke Daftar Dokter</a></div><div className="profile-copy"><h1>{doctor.name}</h1><span className="specialty-pill">{doctor.specialty}</span><section><h2>Profil</h2><p>{doctor.deskripsi || 'Informasi profil dan kompetensi akan diperbarui oleh admin klinik.'}</p></section><section><h2>Jadwal</h2>{jadwal.length > 0 ? <ul>{jadwal.map((s) => <li key={s.id}>{s.hari}: {s.jam_mulai} - {s.jam_selesai}</li>)}</ul> : <p>Jadwal layanan dapat diperbarui saat data tersedia.</p>}</section></div></div></section>
 }
+
+// Memetakan data layanan dari API ke bentuk yang dipakai komponen.
+const mapLayanan = (s, index) => ({
+	id: s.id,
+	name: s.nama,
+	short: (s.nama || '').toUpperCase(),
+	icon: ['✦', '⌁', '◒', '＋'][index % 4],
+	detail: s.deskripsi || s.kategori || '',
+	image: s.foto_url || '/hospital-hero.svg',
+})
 
 export function ServicesPage() {
 	const [query, setQuery] = useState('')
-	const filteredServices = clinicServices.filter((service) => `${service.name} ${service.short}`.toLowerCase().includes(query.toLowerCase()))
+	const { data } = usePublicApi('/services')
+
+	const sumber = Array.isArray(data) && data.length > 0 ? data.map(mapLayanan) : clinicServices
+	const filteredServices = sumber.filter((service) => `${service.name} ${service.short}`.toLowerCase().includes(query.toLowerCase()))
 
 	return <section className="reference-page services-directory container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="RAWAT JALAN" /><form className="service-search" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari Layanan" aria-label="Cari poliklinik" /><button type="submit">Cari</button></form><div className="clinic-grid">{filteredServices.map((service, index) => <article className={`clinic-card clinic-tone-${index % 6}`} key={service.id}><div className="clinic-card-art"><span className="clinic-logo">✚</span><span className="clinic-medal">✦</span><div className="clinic-icon">{service.icon}</div><small>Klik Di Sini</small></div><div className="clinic-card-body"><p>Klinik</p><h2>{service.short}</h2><span>{service.detail}</span><a href={service.id === 2 ? '#poli-gigi' : '#dokter'}>Lihat Detail <b>↗</b></a></div></article>)}</div>{filteredServices.length === 0 && <p className="empty-search">Poliklinik tidak ditemukan.</p>}</section>
 }
@@ -294,22 +351,49 @@ export function DentalClinicPage() {
 }
 
 export function FacilitiesPage() {
-	return <section className="reference-page facilities-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="FASILITAS UMUM" /><p className="facilities-lead">BERBAGAI FASILITAS PENUNJANG UNTUK KENYAMANAN PASIEN DAN PENGUNJUNG</p><div className="facility-grid">{facilities.map(([name, text, hours, action, image]) => <article className="facility-card" key={name}><img src={image} alt={name} /><div><h2>{name}</h2><p>{text}</p><small>◷ {hours}</small><a href="#kontak">{action} <b>→</b></a></div></article>)}</div></section>
+	const { data } = usePublicApi('/facilities')
+
+	const daftar = Array.isArray(data) && data.length > 0
+	? data.map((f) => [f.nama, f.deskripsi || '', 'Setiap hari', 'Lihat lokasi', f.foto_url || '/hospital-hero.svg'])
+	: facilities
+	return <section className="reference-page facilities-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="FASILITAS UMUM" /><p className="facilities-lead">BERBAGAI FASILITAS PENUNJANG UNTUK KENYAMANAN PASIEN DAN PENGUNJUNG</p><div className="facility-grid">{daftar.map(([name, text, hours, action, image]) => <article className="facility-card" key={name}><img src={image} alt={name} /><div><h2>{name}</h2><p>{text}</p><small>◷ {hours}</small><a href="#kontak">{action} <b>→</b></a></div></article>)}</div></section>
 }
 
 export function CareersPage() {
-	return <section className="reference-page careers-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="KARIR & LOWONGAN KERJA" /><div className="career-intro"><span>▱</span><h2>Bergabung bersama Kami</h2><p>Bangun karier dan berikan kontribusi terbaik untuk pelayanan kesehatan masyarakat Garut.</p></div><div className="job-grid">{jobOpenings.map(([title, category, type, text]) => <article className="job-card" key={title}><div><span>{category}</span><h2>{title}</h2><p>{text}</p></div><div className="job-meta"><small>◷ {type}</small><a href="mailto:admin@kliniksehatbagendit.com?subject=Lamaran%20Kerja">Lihat Detail ↗</a></div></article>)}</div><div className="career-note"><strong>Belum menemukan posisi yang sesuai?</strong><span>Kirim CV Anda dan kami akan menghubungi saat ada kesempatan yang relevan.</span><a href="mailto:admin@kliniksehatbagendit.com?subject=CV%20Kandidat">Kirim CV ↗</a></div></section>
+	const { data } = usePublicApi('/jobs?status=buka')
+
+	const daftar = Array.isArray(data) && data.length > 0
+	? data.map((j) => [j.posisi, j.persyaratan || 'Umum', 'Full time', j.deskripsi_pekerjaan || ''])
+	: jobOpenings
+	return <section className="reference-page careers-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="KARIR & LOWONGAN KERJA" /><div className="career-intro"><span>▱</span><h2>Bergabung bersama Kami</h2><p>Bangun karier dan berikan kontribusi terbaik untuk pelayanan kesehatan masyarakat Garut.</p></div><div className="job-grid">{daftar.map(([title, category, type, text]) => <article className="job-card" key={title}><div><span>{category}</span><h2>{title}</h2><p>{text}</p></div><div className="job-meta"><small>◷ {type}</small><a href="mailto:admin@kliniksehatbagendit.com?subject=Lamaran%20Kerja">Lihat Detail ↗</a></div></article>)}</div><div className="career-note"><strong>Belum menemukan posisi yang sesuai?</strong><span>Kirim CV Anda dan kami akan menghubungi saat ada kesempatan yang relevan.</span><a href="mailto:admin@kliniksehatbagendit.com?subject=CV%20Kandidat">Kirim CV ↗</a></div></section>
 }
 
 export function ContactPage() {
-	return <section className="contact-reference"><header className="contact-banner"><h1>Hubungi Kami</h1><p>Klinik Sehat Bagendit siap melayani kebutuhan kesehatan dasar Anda.</p></header><div className="contact-reference-content container"><div className="contact-column"><article className="contact-panel"><h2>⌖ &nbsp;Alamat</h2><div><strong>⌂ Lokasi Klinik</strong><p>Jl. Terusan Cinunuk No. 9<br />Kp. Babakan Baru RT 002/RW 009<br />Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut</p><a href="https://maps.app.goo.gl/kXFHvWo4fhn8qXC78" target="_blank" rel="noreferrer">Buka di Google Maps</a></div><div><strong>◷ Rawat Jalan</strong><p>Senin–Minggu<br />07.00–14.00 WIB dan 15.00–20.00 WIB</p></div></article></div><article className="map-panel"><h2>⌖ &nbsp;Lokasi Kami di Peta</h2><a className="map-direct-link" href="https://maps.app.goo.gl/kXFHvWo4fhn8qXC78" target="_blank" rel="noreferrer">Buka lokasi Klinik Sehat Bagendit di Google Maps ↗</a></article></div><section className="hours-section"><h2>◷ Jam Operasional</h2><div><article><strong>Rawat Jalan</strong><span>Setiap hari, 07.00–14.00 & 15.00–20.00 WIB</span></article><article className="emergency-hours"><strong>Rawat Inap</strong><span>Buka 24 Jam Setiap Hari</span></article></div></section></section>
+	const { data } = usePublicApi('/settings')
+	const alamat = ambilSetting(data, 'alamat', 'Jl. Terusan Cinunuk No. 9, Kp. Babakan Baru RT 002/RW 009, Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut')
+	const wa = ambilSetting(data, 'no_whatsapp', '6282120232032')
+	const maps = ambilSetting(data, 'google_maps', 'https://maps.app.goo.gl/kXFHvWo4fhn8qXC78')
+
+	return <section className="contact-reference"><header className="contact-banner"><h1>Hubungi Kami</h1><p>Klinik Sehat Bagendit siap melayani kebutuhan kesehatan dasar Anda.</p></header><div className="contact-reference-content container"><div className="contact-column"><article className="contact-panel"><h2>⌖ &nbsp;Alamat</h2><div><strong>⌂ Lokasi Klinik</strong><p>{alamat}</p><a href={maps} target="_blank" rel="noreferrer">Buka di Google Maps</a></div><div><strong>◷ Rawat Jalan</strong><p>Senin–Minggu<br />07.00–14.00 WIB dan 15.00–20.00 WIB</p></div></article></div><article className="map-panel"><h2>⌖ &nbsp;Lokasi Kami di Peta</h2><a className="map-direct-link" href={maps} target="_blank" rel="noreferrer">Buka lokasi Klinik Sehat Bagendit di Google Maps ↗</a></article></div><section className="hours-section"><h2>◷ Jam Operasional</h2><div><article><strong>Rawat Jalan</strong><span>Setiap hari, 07.00–14.00 & 15.00–20.00 WIB</span></article><article className="emergency-hours"><strong>Rawat Inap</strong><span>Buka 24 Jam Setiap Hari</span></article></div></section></section>
 }
 
 export function BlogPage() {
-	return <section className="reference-page blog-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG & ARTIKEL KESEHATAN" /><div className="blog-layout"><div className="blog-list">{blogPosts.map(([title, author, date, category, image, excerpt], index) => <article className="blog-card" key={title}><img src={image} alt={title} /><div><h2>{title}</h2><small>♙ {author} &nbsp; ◷ {date} &nbsp; ▫ {category}</small><p>{excerpt}</p><a href={index === 2 ? '#blog-tonsil' : '#kontak'}>Selengkapnya <b>↗</b></a></div></article>)}</div><aside className="blog-sidebar"><input placeholder="Search..." aria-label="Cari artikel" /><h3>Kategori</h3><a href="#blog">Pelayanan Medis (1)</a><a href="#blog">Penelitian &amp; Inovasi (0)</a><a href="#blog">Info Kesehatan (2)</a><a href="#blog">Promosi Kesehatan (1)</a><a href="#blog">Informasi Klinik (0)</a></aside></div></section>
+	const { data } = usePublicApi('/articles?status=published')
+
+	const daftar = Array.isArray(data) && data.length > 0
+	? data.map((a) => [a.judul, a.penulis?.nama_lengkap || 'Admin', formatTanggal(a.created_at), a.status === 'published' ? 'Info Kesehatan' : 'Draft', a.thumbnail_url || '/hospital-hero.svg', (a.konten || '').replace(/<[^>]*>/g, '').slice(0, 140), a.slug])
+	: blogPosts.map((p, i) => [...p, i === 2 ? 'blog-tonsil' : null])
+	return <section className="reference-page blog-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG & ARTIKEL KESEHATAN" /><div className="blog-layout"><div className="blog-list">{daftar.map(([title, author, date, category, image, excerpt, slug]) => <article className="blog-card" key={title}><img src={image} alt={title} /><div><h2>{title}</h2><small>♙ {author} &nbsp; ◷ {date} &nbsp; ▫ {category}</small><p>{excerpt}</p><a href={slug ? `#blog-${slug}` : '#kontak'}>Selengkapnya <b>↗</b></a></div></article>)}</div><aside className="blog-sidebar"><input placeholder="Search..." aria-label="Cari artikel" /><h3>Kategori</h3><a href="#blog">Info Kesehatan</a></aside></div></section>
 }
 
-export function BlogDetailPage() {
+export function BlogDetailPage({ slug }) {
+	const { data } = usePublicApi(slug ? `/articles/${slug}` : '/articles/none', null)
+	const artikel = data && data.judul ? data : null
+	// Bila artikel tersedia dari API, tampilkan versi dinamis.
+	if (artikel) {
+	return <section className="reference-page blog-detail-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG DETAIL" /><article className="blog-detail-card"><img className="blog-detail-cover" src={artikel.thumbnail_url || '/hospital-hero.svg'} alt={artikel.judul} /><h1>{artikel.judul}</h1><small>♙ {artikel.penulis?.nama_lengkap || 'Admin'} &nbsp; ◷ {formatTanggal(artikel.created_at)} &nbsp; ▫ Info Kesehatan</small><div className="article-body" dangerouslySetInnerHTML={{ __html: artikel.konten || '' }} /></article></section>
+	}
+
 	return <section className="reference-page blog-detail-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG DETAIL" /><article className="blog-detail-card"><img className="blog-detail-cover" src={blogPosts[2][4]} alt={blogPosts[2][0]} /><h1>{blogPosts[2][0]}</h1><small>♙ marketing &nbsp; ◷ Nov 11, 2025 &nbsp; ▫ Info Kesehatan</small><div className="article-body"><h2>Tonsil Hipertrofi</h2><h3>Pendahuluan</h3><p>Tonsil hipertrofi sebenarnya cuma istilah medis dari amandel yang membesar. Kondisi ini bisa bikin beberapa aktivitas yang biasanya ringan seperti napas, makan, atau tidur menjadi terganggu. Pada banyak anak, amandel memang cenderung aktif dan ukurannya dapat berubah-ubah.</p><h3>Epidemiologi</h3><p>Kondisi ini paling sering terlihat pada anak-anak usia sekolah atau bahkan sebelumnya. Banyak yang akhirnya mengecil sendiri saat remaja, sehingga angkanya menurun seiring bertambahnya usia.</p><h3>Anatomi &amp; Patofisiologi</h3><p>Tonsil adalah bagian dari sistem pertahanan tubuh di belakang mulut. Jika terlalu besar, saluran napas dapat menyempit dan menyebabkan tidur tidak nyenyak, napas berbunyi, atau kebiasaan bernapas lewat mulut.</p><h3>Penyebab &amp; Faktor Risiko</h3><p>Infeksi berulang, alergi, lingkungan yang memicu peradangan, dan faktor bawaan keluarga dapat membuat amandel lebih mudah membesar.</p><h3>Gejala Klinis</h3><p>Keluhan yang sering muncul adalah mendengkur, tidur gelisah, napas melalui mulut, sakit tenggorokan berulang, serta kesulitan makan.</p><h3>Pemeriksaan</h3><p>Dokter biasanya memulai dengan menanyakan riwayat keluhan lalu memeriksa ukuran tonsil. Bila diperlukan, pemeriksaan tambahan seperti endoskopi atau pemeriksaan tidur dapat dilakukan.</p><h3>Diagnosis Banding</h3><p>Kondisi lain seperti abses di sekitar tonsil, radang tonsil kronis, atau pertumbuhan jaringan yang tidak normal perlu dibedakan melalui pemeriksaan menyeluruh.</p><h3>Penatalaksanaan</h3><p>Kasus ringan dapat dipantau dan ditangani dengan obat sesuai penyebab. Jika keluhan mengganggu aktivitas atau infeksi sering terjadi, operasi pengangkatan amandel dapat menjadi pilihan.</p><h3>Indikasi Tonsilektomi</h3><p>Operasi dipertimbangkan bila infeksi terlalu sering atau pembesaran tonsil mengganggu napas saat tidur, makan, atau menyebabkan komplikasi berulang.</p><h3>Komplikasi Operasi</h3><p>Seperti tindakan bedah lainnya, operasi amandel memiliki risiko seperti perdarahan, nyeri menelan, infeksi, atau perubahan suara sementara.</p><h3>Hasil &amp; Prognosis</h3><p>Banyak anak mengalami perbaikan kualitas tidur, energi, dan aktivitas setelah penanganan yang sesuai. Tetap diperlukan pemantauan jangka panjang.</p><p className="article-author">Penulis: <strong>Tim Medis KSB</strong></p></div><section className="related-article"><h2>Artikel Terkait</h2><img src={blogPosts[3][4]} alt={blogPosts[3][0]} /><h3>{blogPosts[3][0]}</h3><a href="#blog">Baca Selengkapnya</a></section></article></section>
 }
 
@@ -323,8 +407,15 @@ export function ReferenceHome({ activeRoom, setActiveRoom, roomStart, setRoomSta
 	const visibleRooms = rooms.slice(roomStart, roomStart + 2)
 	const roomSlideCount = Math.max(1, rooms.length - 1)
 
+	// Hero banner dinamis dari pengaturan (FR-3.1).
+	const { data: settings } = usePublicApi('/settings')
+	const heroBanner = ambilSetting(settings, 'hero_banner', '')
+	const heroTitle = ambilSetting(settings, 'hero_title', 'Klinik Sehat Bagendit')
+	const heroSubtitle = ambilSetting(settings, 'hero_subtitle', 'Pusat layanan kesehatan primer yang berkualitas, nyaman, dan bersahabat di wilayah Kecamatan Banyuresmi dan sekitarnya.')
+	const heroSambutan = ambilSetting(settings, 'sambutan_teks', 'Selamat Datang di')
+	const heroStyle = heroBanner ? { backgroundImage: `url(${heroBanner})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined
 	return <div className="reference-home">
-		<section className="home-hero-reference"><div className="home-hero-image" /><div className="home-hero-overlay"><div className="home-hero-inner container"><p>Selamat Datang di</p><h1>Klinik Sehat Bagendit</h1><span>Pusat layanan kesehatan primer yang berkualitas, nyaman, dan bersahabat di wilayah Kecamatan Banyuresmi dan sekitarnya.</span><a href="#jenis-pelayanan">Lihat Layanan <b>↗</b></a></div><div className="hero-dots"><i className="active" /></div></div></section>
+	<section className="home-hero-reference"><div className="home-hero-image" style={heroStyle} /><div className="home-hero-overlay"><div className="home-hero-inner container"><p>{heroSambutan}</p><h1>{heroTitle}</h1><span>{heroSubtitle}</span><a href="#jenis-pelayanan">Lihat Layanan <b>↗</b></a></div><div className="hero-dots"><i className="active" /></div></div></section>
 		<section className="emergency-feature container"><div className="emergency-photo"><img src="/hospital-hero.svg" alt="Klinik Sehat Bagendit" /><span>RAWAT INAP</span></div><div className="emergency-copy"><p className="section-kicker">Pelayanan Klinik</p><h2>Pelayanan Rawat Inap 24 Jam</h2><p>Klinik menyediakan rawat inap dengan kapasitas total 12 bed, termasuk pelayanan observasi dan pertolongan pertama pada kondisi kegawatdaruratan.</p><a className="emergency-button" href="#kontak">Lihat lokasi klinik ↗</a><div className="emergency-tags"><span>◷ Rawat inap 24 jam</span><span>♧ Layanan medis dasar</span></div><small>Rawat jalan setiap hari<br />07.00–14.00 &amp; 15.00–20.00 WIB</small></div></section>
 		<section className="reference-rooms"><div className="container"><div className="reference-section-label">KAMAR RAWAT INAP</div><p className="reference-subtitle">Berbagai pilihan kamar rawat inap yang nyaman untuk proses pemulihan optimal</p><div className="reference-room-track"><button className="round-arrow" onClick={() => setRoomStart(Math.max(0, roomStart - 1))} disabled={roomStart === 0}>‹</button>{visibleRooms.map((room, index) => { const roomIndex = roomStart + index; return <article className={`reference-room-card ${activeRoom === roomIndex ? 'active' : ''}`} key={room.name} onClick={() => setActiveRoom(roomIndex)}><img src={room.image} alt={room.name} /><div><small>{roomIndex === 0 ? 'VIP' : room.name}</small><h3>{room.name}</h3><p>◉ Luas ruangan nyaman<br />◉ Kapasitas {room.detail}</p><strong>{room.price}<em> / malam</em></strong><a href="#kontak">Detail Kamar ↗</a></div></article> })}<button className="round-arrow" onClick={() => setRoomStart(Math.min(roomSlideCount - 1, roomStart + 1))} disabled={roomStart === roomSlideCount - 1}>›</button></div><div className="reference-room-dots">{Array.from({ length: roomSlideCount }, (_, index) => <button className={roomStart === index ? 'active' : ''} key={index} onClick={() => setRoomStart(index)} />)}</div></div></section>
 		<section className="reference-services container"><div className="reference-section-label">LAYANAN KESEHATAN</div><p className="reference-subtitle">Berbagai layanan kesehatan profesional yang tersedia di Klinik Sehat Bagendit</p><div className="poster-grid">{homePosters.map(([title, image]) => <a href="#jenis-pelayanan" className="poster-card" key={title}><img src={image} alt={title} /><span>{title}</span></a>)}</div></section>

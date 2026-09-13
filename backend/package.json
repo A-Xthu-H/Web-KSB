@@ -6,13 +6,17 @@
     "scripts": {
         "start": "node src/server.js",
         "dev": "nodemon src/server.js",
-        "seed": "node src/seed.js"
+        "seed": "node src/seed.js",
+        "seed:content": "node src/seedContent.js"
     },
     "dependencies": {
         "bcrypt": "^6.0.0",
+        "cloudinary": "^2.11.0",
         "cors": "^2.8.6",
         "dotenv": "^17.4.2",
         "express": "^5.2.1",
+        "express-rate-limit": "^8.7.0",
+        "helmet": "^8.3.0",
         "jsonwebtoken": "^9.0.3",
         "multer": "^2.3.0",
         "mysql2": "^3.11.5",

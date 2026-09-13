@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { api } from '../api/client.js';
+import RichTextEditor from './RichTextEditor.jsx';
 
 // Menyusun payload dari data form (menyesuaikan boolean/number).
 export function normalizeValue(field, raw) {
@@ -51,15 +52,7 @@ export default function FieldInput({ field, value, onChange }) {
   }
 
   if (field.type === 'richtext') {
-    return (
-      <textarea
-        className={`${base} font-mono`}
-        rows={10}
-        placeholder="Tulis konten HTML di sini…"
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
+    return <RichTextEditor value={value} onChange={onChange} />;
   }
 
   if (field.type === 'select') {
