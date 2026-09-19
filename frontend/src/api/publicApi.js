@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 
 // URL dasar API publik.
-export const PUBLIC_API_URL =
-  (import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api';
-
-const API_ORIGIN = PUBLIC_API_URL.replace(/\/api$/, '');
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+export const PUBLIC_API_URL = `${API_ORIGIN}/api`;
 
 // URL upload lokal disimpan backend sebagai path relatif (/uploads/...).
 // Saat frontend dan API berbeda origin/port, gunakan URL backend utuh.
@@ -49,6 +47,21 @@ export function usePublicApi(path, fallback = null) {
   }, [path]);
 
   return { data, loading, error };
+}
+
+// Formulir publik tidak memakai token admin, tetapi tetap memakai format API yang sama.
+export async function postPublic(path, body) {
+  try {
+    const res = await fetch(`${PUBLIC_API_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json().catch(() => ({}));
+    return { ok: res.ok, data: json.data ?? null, message: json.message || 'Terjadi kesalahan' };
+  } catch (error) {
+    return { ok: false, data: null, message: error.message };
+  }
 }
 
 // Format tanggal ISO ke format Indonesia (contoh: 11 Nov 2025).

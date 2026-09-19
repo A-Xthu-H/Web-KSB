@@ -1,7 +1,7 @@
 // Klien API terpusat untuk seluruh halaman admin.
-// VITE_API_URL diambil dari frontend/.env (default http://localhost:5000).
-
-const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api';
+// Kosongkan VITE_API_URL saat frontend dan API berada pada origin yang sama.
+const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+const BASE_URL = `${API_ORIGIN}/api`;
 
 const TOKEN_KEY = 'ksb_admin_token';
 

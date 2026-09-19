@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { usePublicApi, formatTanggal, ambilSetting, ambilKonten, uraiKartu, urlMedia } from '../api/publicApi.js'
+import { usePublicApi, postPublic, formatTanggal, ambilSetting, ambilKonten, uraiKartu, urlMedia } from '../api/publicApi.js'
 
 const rooms = [
 	{ name: 'Rawat Inap', price: 'Tarif: hubungi klinik', detail: 'Total kapasitas 12 bed', tone: 'mint', image: '/room-suite.svg' },
@@ -280,8 +280,8 @@ function ManagementCard({ image, name, role }) {
 export function PartnersPage() {
 	const { data } = usePublicApi('/partners')
 
-	const daftar = Array.isArray(data) && data.length > 0 ? data.map((p) => p.nama_mitra) : partners
-	return <section className="reference-page partners-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="REKANAN DAN MITRA" /><p className="reference-lead">Klinik Sehat Bagendit telah bekerja sama dengan:</p><div className="partner-grid">{daftar.map((partner, index) => <article className={`partner-card partner-${index % 6}`} key={partner}><span>{partner.split(' ').map((word) => word[0]).join('').slice(0, 3)}</span><strong>{partner}</strong></article>)}</div></section>
+	const daftar = Array.isArray(data) && data.length > 0 ? data : partners.map((nama_mitra) => ({ nama_mitra }))
+	return <section className="reference-page partners-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="REKANAN DAN MITRA" /><p className="reference-lead">Klinik Sehat Bagendit telah bekerja sama dengan:</p><div className="partner-grid">{daftar.map((partner, index) => <article className={`partner-card partner-${index % 6}`} key={partner.id || partner.nama_mitra}>{partner.logo_url ? <img src={urlMedia(partner.logo_url)} alt={`Logo ${partner.nama_mitra}`} className="partner-logo" /> : <span>{partner.nama_mitra.split(' ').map((word) => word[0]).join('').slice(0, 3)}</span>}<strong>{partner.nama_mitra}</strong></article>)}</div></section>
 }
 
 // Memetakan data dokter dari API ke bentuk yang dipakai komponen.
@@ -430,11 +430,13 @@ export function CareersPage() {
 	return <section className="reference-page careers-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="KARIR & LOWONGAN KERJA" /><div className="career-intro"><span>▱</span><h2>Bergabung bersama Kami</h2><p>Bangun karier dan berikan kontribusi terbaik untuk pelayanan kesehatan masyarakat Garut.</p></div><div className="job-grid">{daftar.map(([title, category, type, text]) => <article className="job-card" key={title}><div><span>{category}</span><h2>{title}</h2><p>{text}</p></div><div className="job-meta"><small>◷ {type}</small><a href="mailto:admin@kliniksehatbagendit.com?subject=Lamaran%20Kerja">Lihat Detail ↗</a></div></article>)}</div><div className="career-note"><strong>Belum menemukan posisi yang sesuai?</strong><span>Kirim CV Anda dan kami akan menghubungi saat ada kesempatan yang relevan.</span><a href="mailto:admin@kliniksehatbagendit.com?subject=CV%20Kandidat">Kirim CV ↗</a></div></section>
 }
 
-export function ContactPage() {
+function ContactPageContent() {
 	const { data } = usePublicApi('/settings')
 	const alamat = ambilSetting(data, 'alamat', 'Jl. Terusan Cinunuk No. 9, Kp. Babakan Baru RT 002/RW 009, Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut')
-	const maps = 'https://maps.app.goo.gl/uZQDUBojFcpLwCu79'
-	const mapEmbed = `https://www.google.com/maps?q=klinik sehat bagendit&output=embed`
+	const maps = ambilSetting(data, 'maps_url', 'https://maps.app.goo.gl/uZQDUBojFcpLwCu79')
+	const mapEmbed = ambilSetting(data, 'maps_embed', 'https://www.google.com/maps?q=klinik sehat bagendit&output=embed')
+	const jamRawatJalan = ambilSetting(data, 'jam_rawat_jalan', 'Setiap hari, 07.00–14.00 & 15.00–20.00 WIB')
+	const jamRawatInap = ambilSetting(data, 'jam_rawat_inap', 'Buka 24 Jam Setiap Hari')
 	const socials = [
 		{ name: 'Facebook', detail: 'Klinik Sehat Bagendit', href: 'https://www.facebook.com/share/1HEDS5Eawa/', className: 'facebook', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.6 1.6-1.6h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.2v3.2H10V21h3.4Z" /></svg> },
 		{ name: 'Instagram', detail: '@kliniksehatbagendit', href: 'https://www.instagram.com/kliniksehatbagendit?stkn=Ym9udWd2bmlodXM5', className: 'instagram', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle className="icon-fill" cx="17.7" cy="6.7" r="1" /></svg> },
@@ -442,11 +444,39 @@ export function ContactPage() {
 		{ name: 'YouTube', detail: 'Klinik Sehat Bagendit', href: 'https://youtube.com/@kliniksehatbagendit3414?si=2IdlGqIEqoSf5IKX', className: 'youtube', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.1a3 3 0 0 0-2.1-2.2C19 4.4 12 4.4 12 4.4s-7 0-8.9.5A3 3 0 0 0 1 7.1 31 31 0 0 0 .5 12c0 1.7.2 3.3.5 4.9a3 3 0 0 0 2.1 2.2c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.2c.3-1.6.5-3.2.5-4.9s-.2-3.3-.5-4.9ZM9.7 15.5v-7l6 3.5-6 3.5Z" /></svg> },
 	]
 	const kontakKlinik = [
-		{ nama: 'PIC', nomor: '+62821-1607-4106', tel: '6282116074106' },
-		{ nama: 'Salima', nomor: '+62821-2023-2032', tel: '6282120232032' },
+		{ nama: 'PIC', nomor: `+${ambilSetting(data, 'kontak_pic', '6282116074106')}`, tel: ambilSetting(data, 'kontak_pic', '6282116074106') },
+		{ nama: 'Salima', nomor: `+${ambilSetting(data, 'kontak_salima', '6282120232032')}`, tel: ambilSetting(data, 'kontak_salima', '6282120232032') },
 	]
 	return <section className="contact-reference"><header className="contact-banner"><h1>Hubungi Kami</h1><p>Klinik Sehat Bagendit siap melayani kebutuhan kesehatan dasar Anda.</p></header><div className="contact-reference-content container"><div className="contact-column"><article className="contact-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.08 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L9 10.71a16 16 0 0 0 4.29 4.29l1.25-1.25a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z" /></svg></span> Alamat &amp; Telepon</h2><div><strong>Lokasi Klinik</strong><p>{alamat}</p><a href={maps} target="_blank" rel="noreferrer">Buka di Google Maps ↗</a></div><div className="clinic-whatsapp"><strong>Kontak Klinik</strong>{kontakKlinik.map((kontak) => <div className="clinic-contact" key={kontak.tel}><div className="clinic-contact-heading"><span>{kontak.nama}</span><b>{kontak.nomor}</b></div><a className="clinic-wa-button" href={`https://wa.me/${kontak.tel}`} target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 2 17.7L.5 23.5l6-1.6A11.8 11.8 0 0 0 23.5 11.5a11.7 11.7 0 0 0-3-8ZM12 21a9.5 9.5 0 0 1-4.8-1.3l-.4-.2-3.5.9.9-3.4-.2-.4A9.5 9.5 0 1 1 12 21Zm5.2-7.1c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1a7.7 7.7 0 0 1-2.3-1.4 8.4 8.4 0 0 1-1.6-2c-.2-.3 0-.4.1-.5l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.6-.7 1.8-1.3.2-.7.2-1.2.1-1.3-.1-.2-.3-.3-.6-.4Z" /></svg>Chat WhatsApp</a></div>)}</div></article><article className="social-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.7 10.7 6.6-4.4m-6.6 7 6.6 4.4" /></svg></span>Media Sosial</h2><p>Ikuti informasi terbaru Klinik Sehat Bagendit melalui kanal resmi kami.</p><div className="social-links">{socials.map((social) => <a key={social.name} className={social.className} href={social.href} target="_blank" rel="noreferrer"><b>{social.icon}</b><span>{social.name}<small>{social.detail}</small></span></a>)}</div></article></div><article className="map-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span> Lokasi Kami di Peta</h2><iframe className="mini-map" title="Peta Klinik Sehat Bagendit" src={mapEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /><a className="map-direct-link" href={maps} target="_blank" rel="noreferrer">Buka lokasi Klinik Sehat Bagendit di Google Maps ↗</a></article><section className="hours-section hours-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></span>Jam Operasional</h2><div><article><strong>Rawat Jalan</strong><span>Setiap hari, 07.00–14.00 &amp; 15.00–20.00 WIB</span></article><article className="emergency-hours"><strong>Rawat Inap</strong><span>Buka 24 Jam Setiap Hari</span></article></div></section></div></section>
 }
+
+function ContactForm() {
+	const [form, setForm] = useState({ nama: '', email: '', telepon: '', isi: '' })
+	const [status, setStatus] = useState({ loading: false, message: '', error: false })
+
+	const submit = async (event) => {
+		event.preventDefault()
+		setStatus({ loading: true, message: '', error: false })
+		const result = await postPublic('/messages', form)
+		if (result.ok) {
+			setForm({ nama: '', email: '', telepon: '', isi: '' })
+			setStatus({ loading: false, message: 'Pesan berhasil dikirim. Tim kami akan segera menghubungi Anda.', error: false })
+		} else {
+			setStatus({ loading: false, message: result.message || 'Pesan belum dapat dikirim. Silakan coba lagi.', error: true })
+		}
+	}
+
+	return <section className="contact-form-section container" aria-labelledby="contact-form-title"><div className="contact-form-card"><p className="section-kicker">Kirim Pesan</p><h2 id="contact-form-title">Ada yang ingin ditanyakan?</h2><p>Isi formulir berikut. Pesan Anda akan diteruskan langsung ke panel admin Klinik Sehat Bagendit.</p><form onSubmit={submit} className="contact-message-form"><label>Nama<input required value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} /></label><label>Email<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label><label>Nomor WhatsApp<input type="tel" value={form.telepon} onChange={(e) => setForm({ ...form, telepon: e.target.value })} /></label><label>Pesan<textarea required rows="5" value={form.isi} onChange={(e) => setForm({ ...form, isi: e.target.value })} /></label><button type="submit" disabled={status.loading}>{status.loading ? 'Mengirim…' : 'Kirim Pesan'}</button>{status.message && <p className={status.error ? 'form-message error' : 'form-message success'} role="status">{status.message}</p>}</form></div></section>
+}
+
+export function ContactPage() {
+	return <ContactPageContent />
+}
+
+export function FeedbackPage() {
+	return <section className="feedback-page"><header className="feedback-banner"><p className="section-kicker">Klinik Sehat Bagendit</p><h1>Ada Masukan?</h1><p>Sampaikan pertanyaan, saran, atau pengalaman Anda. Pesan akan diteruskan ke admin klinik.</p></header><ContactForm /></section>
+}
+
 export function BlogPage() {
 	const { data } = usePublicApi('/articles?status=published')
 
@@ -461,7 +491,7 @@ export function BlogDetailPage({ slug }) {
 	const artikel = data && data.judul ? data : null
 	// Bila artikel tersedia dari API, tampilkan versi dinamis.
 	if (artikel) {
-	return <section className="reference-page blog-detail-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG DETAIL" /><article className="blog-detail-card"><img className="blog-detail-cover" src={artikel.thumbnail_url || '/hospital-hero.svg'} alt={artikel.judul} /><h1>{artikel.judul}</h1><small>♙ {artikel.penulis?.nama_lengkap || 'Admin'} &nbsp; ◷ {formatTanggal(artikel.created_at)} &nbsp; ▫ Info Kesehatan</small><div className="article-body" dangerouslySetInnerHTML={{ __html: artikel.konten || '' }} /></article></section>
+	return <section className="reference-page blog-detail-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG DETAIL" /><article className="blog-detail-card"><img className="blog-detail-cover" src={urlMedia(artikel.thumbnail_url, '/hospital-hero.svg')} alt={artikel.judul} /><h1>{artikel.judul}</h1><small>♙ {artikel.penulis?.nama_lengkap || 'Admin'} &nbsp; ◷ {formatTanggal(artikel.created_at)} &nbsp; ▫ Info Kesehatan</small><div className="article-body" dangerouslySetInnerHTML={{ __html: artikel.konten || '' }} /></article></section>
 	}
 
 	return <section className="reference-page blog-detail-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG DETAIL" /><article className="blog-detail-card"><img className="blog-detail-cover" src={blogPosts[2][4]} alt={blogPosts[2][0]} /><h1>{blogPosts[2][0]}</h1><small>♙ marketing &nbsp; ◷ Nov 11, 2025 &nbsp; ▫ Info Kesehatan</small><div className="article-body"><h2>Tonsil Hipertrofi</h2><h3>Pendahuluan</h3><p>Tonsil hipertrofi sebenarnya cuma istilah medis dari amandel yang membesar. Kondisi ini bisa bikin beberapa aktivitas yang biasanya ringan seperti napas, makan, atau tidur menjadi terganggu. Pada banyak anak, amandel memang cenderung aktif dan ukurannya dapat berubah-ubah.</p><h3>Epidemiologi</h3><p>Kondisi ini paling sering terlihat pada anak-anak usia sekolah atau bahkan sebelumnya. Banyak yang akhirnya mengecil sendiri saat remaja, sehingga angkanya menurun seiring bertambahnya usia.</p><h3>Anatomi &amp; Patofisiologi</h3><p>Tonsil adalah bagian dari sistem pertahanan tubuh di belakang mulut. Jika terlalu besar, saluran napas dapat menyempit dan menyebabkan tidur tidak nyenyak, napas berbunyi, atau kebiasaan bernapas lewat mulut.</p><h3>Penyebab &amp; Faktor Risiko</h3><p>Infeksi berulang, alergi, lingkungan yang memicu peradangan, dan faktor bawaan keluarga dapat membuat amandel lebih mudah membesar.</p><h3>Gejala Klinis</h3><p>Keluhan yang sering muncul adalah mendengkur, tidur gelisah, napas melalui mulut, sakit tenggorokan berulang, serta kesulitan makan.</p><h3>Pemeriksaan</h3><p>Dokter biasanya memulai dengan menanyakan riwayat keluhan lalu memeriksa ukuran tonsil. Bila diperlukan, pemeriksaan tambahan seperti endoskopi atau pemeriksaan tidur dapat dilakukan.</p><h3>Diagnosis Banding</h3><p>Kondisi lain seperti abses di sekitar tonsil, radang tonsil kronis, atau pertumbuhan jaringan yang tidak normal perlu dibedakan melalui pemeriksaan menyeluruh.</p><h3>Penatalaksanaan</h3><p>Kasus ringan dapat dipantau dan ditangani dengan obat sesuai penyebab. Jika keluhan mengganggu aktivitas atau infeksi sering terjadi, operasi pengangkatan amandel dapat menjadi pilihan.</p><h3>Indikasi Tonsilektomi</h3><p>Operasi dipertimbangkan bila infeksi terlalu sering atau pembesaran tonsil mengganggu napas saat tidur, makan, atau menyebabkan komplikasi berulang.</p><h3>Komplikasi Operasi</h3><p>Seperti tindakan bedah lainnya, operasi amandel memiliki risiko seperti perdarahan, nyeri menelan, infeksi, atau perubahan suara sementara.</p><h3>Hasil &amp; Prognosis</h3><p>Banyak anak mengalami perbaikan kualitas tidur, energi, dan aktivitas setelah penanganan yang sesuai. Tetap diperlukan pemantauan jangka panjang.</p><p className="article-author">Penulis: <strong>Tim Medis KSB</strong></p></div><section className="related-article"><h2>Artikel Terkait</h2><img src={blogPosts[3][4]} alt={blogPosts[3][0]} /><h3>{blogPosts[3][0]}</h3><a href="#blog">Baca Selengkapnya</a></section></article></section>
@@ -483,6 +513,7 @@ export function SiteFooter() {
 					<a href="https://www.tiktok.com/@kliniksehatbagendit?_r=1&amp;_t=ZS-99rw05XJTqm" target="_blank" rel="noreferrer" aria-label="TikTok Klinik Sehat Bagendit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 3h3.1c.2 2 1.3 3.5 3.7 3.9v3.2a9.1 9.1 0 0 1-3.7-1.2v6.2a6.1 6.1 0 1 1-6.1-6.1c.4 0 .8 0 1.2.1v3.4a2.8 2.8 0 1 0 1.8 2.6V3Z" /></svg></a>
 					<a href="https://youtube.com/@kliniksehatbagendit3414?si=2IdlGqIEqoSf5IKX" target="_blank" rel="noreferrer" aria-label="YouTube Klinik Sehat Bagendit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.1a3 3 0 0 0-2.1-2.2C19 4.4 12 4.4 12 4.4s-7 0-8.9.5A3 3 0 0 0 1 7.1 31 31 0 0 0 .5 12c0 1.7.2 3.3.5 4.9a3 3 0 0 0 2.1 2.2c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.2c.3-1.6.5-3.2.5-4.9s-.2-3.3-.5-4.9ZM9.7 15.5v-7l6 3.5-6 3.5Z" /></svg></a>
 				</div>
+				<a className="footer-feedback-button" href="#feedback">Ada Masukan?</a>
 			</div>
 			<small className="footer-copy">© 2026 Klinik Sehat Bagendit. All rights reserved.</small>
 		</footer>

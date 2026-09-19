@@ -9,7 +9,7 @@ RUN npm install
 COPY . .
 
 # URL API dipakai saat build (bisa dioverride via build-arg).
-ARG VITE_API_URL=http://localhost:3000
+ARG VITE_API_URL=/
 ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build

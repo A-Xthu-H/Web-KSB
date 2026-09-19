@@ -962,3 +962,24 @@ main:has(.reference-home) + .site-footer { max-width: none; margin: 0; padding: 
   .facilities-page .facility-card h2 { font-size: 16px; }
   .doctors-page .doctor-grid .doctor-card-body h2 { font-size: 19px !important; }
 }
+/* Form pesan publik: data dikirim ke /api/messages dan dapat dibaca di CMS. */
+.contact-form-section { padding: 0 1rem 4rem; }
+.contact-form-card { max-width: 760px; margin: 0 auto; padding: 2rem; border-radius: 1rem; background: #fff; box-shadow: 0 12px 32px rgba(22, 89, 76, .12); }
+.contact-message-form { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.contact-message-form label { display: grid; gap: .4rem; color: #16594c; font-weight: 600; }
+.contact-message-form input, .contact-message-form textarea { width: 100%; padding: .75rem .9rem; border: 1px solid #cbd5d1; border-radius: .5rem; color: #1f2937; font: inherit; }
+.contact-message-form input:focus, .contact-message-form textarea:focus { outline: 2px solid #fc8a15; outline-offset: 1px; }
+.contact-message-form button { justify-self: start; padding: .75rem 1.25rem; border: 0; border-radius: .5rem; background: #16594c; color: #fff; font-weight: 700; cursor: pointer; }
+.contact-message-form button:disabled { cursor: wait; opacity: .65; }
+.form-message { margin: 0; font-size: .95rem; }
+.form-message.success { color: #16734f; }
+.form-message.error { color: #b42318; }
+.partner-logo { display: block; width: 72px; height: 48px; margin: 0 auto .75rem; object-fit: contain; }
+.footer-feedback-button { display: inline-flex; justify-content: center; align-items: center; min-width: 150px; margin-top: 18px; padding: 10px 16px; border: 2px solid #fff; border-radius: 999px; background: #fc8a15; color: #fff; font-size: 13px; font-weight: 700; text-decoration: none; transition: transform .2s ease, background .2s ease; }
+.footer-feedback-button:hover { background: #e97808; color: #fff; transform: translateY(-2px); }
+.feedback-page { min-height: 70vh; padding: 52px 0 0; background: #f4f7f9; }
+.feedback-banner { padding: 0 1rem 22px; text-align: center; }
+.feedback-banner h1 { margin: 8px 0; color: #16594c; font-size: clamp(2rem, 5vw, 3rem); }
+.feedback-banner p:last-child { max-width: 620px; margin: 0 auto; color: #52606d; }
+.feedback-page .contact-form-section { padding-bottom: 4rem; }
+@media (max-width: 640px) { .footer-feedback-button { width: 100%; margin-top: 14px; } }

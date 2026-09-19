@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    AboutOverviewPage, AboutPage, BlogDetailPage, BlogPage, CareersPage, ContactPage, DentalClinicDataPage,
+    AboutOverviewPage, AboutPage, BlogDetailPage, BlogPage, CareersPage, ContactPage, DentalClinicDataPage, FeedbackPage,
     DoctorsPage, DoctorProfilePage, FacilitiesPage, FacilityDetailPage, InformationPage, navItems,
     PartnersPage, ReferenceHome, ServiceDetailPage, ServicesPage, SiteFooter, KaryawanPage, KaryawanProfilePage
 } from './pages/index.jsx';
@@ -25,6 +25,7 @@ const SEO_HALAMAN = {
     'blog-tonsil': { title: 'Kenali Tonsil Hipertrofi' },
     karir: { title: 'Karir & Lowongan Kerja', description: 'Informasi rekrutmen dan lowongan pekerjaan Klinik Sehat Bagendit.' },
     kontak: { title: 'Kontak Kami', description: 'Alamat, nomor telepon, WhatsApp, dan lokasi peta Klinik Sehat Bagendit.' },
+    feedback: { title: 'Ada Masukan?', description: 'Kirim pertanyaan, saran, dan masukan kepada Klinik Sehat Bagendit.' },
 };
 
 function App() {
@@ -89,6 +90,7 @@ function App() {
             case 'fasilitas-umum': return <FacilitiesPage />;
             case 'karir': return <CareersPage />;
             case 'kontak': return <ContactPage />;
+            case 'feedback': return <FeedbackPage />;
             case 'blog': return <BlogPage />;
             default: return <InformationPage page={page} />;
         }

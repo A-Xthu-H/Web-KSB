@@ -1,5 +1,6 @@
 import Article from '../models/article.model.js';
 import User from '../models/admin.model.js';
+import sanitizeHtml from 'sanitize-html';
 import { sendResponse } from '../utils/responseHandler.js';
 
 // Membuat slug dari judul: huruf kecil, spasi -> tanda hubung, buang karakter non-aman.
@@ -11,6 +12,15 @@ const buatSlug = (teks = '') =>
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
+
+// Artikel CMS boleh memakai HTML terbatas, tetapi tidak boleh menyisipkan skrip.
+const sanitasiKonten = (konten = '') => sanitizeHtml(konten, {
+  allowedTags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'blockquote', 'code', 'pre', 'ul', 'ol', 'li', 'h2', 'h3', 'h4', 'a', 'img', 'hr'],
+  allowedAttributes: { a: ['href', 'target', 'rel'], img: ['src', 'alt', 'title'] },
+  allowedSchemes: ['http', 'https'],
+  allowedSchemesByTag: { img: ['http', 'https', 'data'] },
+  transformTags: { a: sanitizeHtml.simpleTransform('a', { rel: 'noopener noreferrer' }) },
+});
 
 // GET /api/articles  (publik) — ?status=published untuk filter
 export const getAllArticles = async (req, res) => {
@@ -59,7 +69,7 @@ export const createArticle = async (req, res) => {
     const article = await Article.create({
       judul,
       slug,
-      konten, // HTML dari Rich Text Editor (dibuat di FASE 3)
+      konten: sanitasiKonten(konten),
       thumbnail_url,
       penulis_id: req.user?.id || null,
       status: status || 'draft',
@@ -77,7 +87,11 @@ export const updateArticle = async (req, res) => {
     if (!article) return sendResponse(res, 404, 'Artikel tidak ditemukan');
 
     const { judul, konten, thumbnail_url, status } = req.body;
-    const data = { konten, thumbnail_url, status };
+    const data = {
+      ...(konten !== undefined && { konten: sanitasiKonten(konten) }),
+      thumbnail_url,
+      status,
+    };
 
     // Perbarui judul + slug bila judul berubah.
     if (judul && judul !== article.judul) {

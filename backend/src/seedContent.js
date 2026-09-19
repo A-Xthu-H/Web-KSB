@@ -54,6 +54,17 @@ const pengaturanAwal = [
   { kunci_pengaturan: 'hero_subtitle', nilai: 'Pusat layanan kesehatan primer yang berkualitas, nyaman, dan bersahabat di wilayah Kecamatan Banyuresmi dan sekitarnya.' },
   { kunci_pengaturan: 'hero_banner', nilai: '' },
   { kunci_pengaturan: 'sambutan_teks', nilai: 'Selamat Datang di' },
+  { kunci_pengaturan: 'alamat', nilai: 'Jl. Terusan Cinunuk No. 9, Kp. Babakan Baru RT 002/RW 009, Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut' },
+  { kunci_pengaturan: 'maps_url', nilai: 'https://maps.app.goo.gl/uZQDUBojFcpLwCu79' },
+  { kunci_pengaturan: 'maps_embed', nilai: 'https://www.google.com/maps?q=klinik sehat bagendit&output=embed' },
+  { kunci_pengaturan: 'jam_rawat_jalan', nilai: 'Setiap hari, 07.00–14.00 & 15.00–20.00 WIB' },
+  { kunci_pengaturan: 'jam_rawat_inap', nilai: 'Buka 24 Jam Setiap Hari' },
+  { kunci_pengaturan: 'kontak_pic', nilai: '6282116074106' },
+  { kunci_pengaturan: 'kontak_salima', nilai: '6282120232032' },
+  { kunci_pengaturan: 'facebook_url', nilai: 'https://www.facebook.com/share/1HEDS5Eawa/' },
+  { kunci_pengaturan: 'instagram_url', nilai: 'https://www.instagram.com/kliniksehatbagendit' },
+  { kunci_pengaturan: 'tiktok_url', nilai: 'https://www.tiktok.com/@kliniksehatbagendit' },
+  { kunci_pengaturan: 'youtube_url', nilai: 'https://youtube.com/@kliniksehatbagendit3414' },
 ];
 
 const seedContent = async () => {
