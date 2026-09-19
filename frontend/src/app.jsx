@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
-    AboutPage, BlogDetailPage, BlogPage, CareersPage, ContactPage, DentalClinicPage,
-    DoctorsPage, DoctorProfilePage, FacilitiesPage, InformationPage, navItems,
-    PartnersPage, ReferenceHome, ServicesPage, SiteFooter, KaryawanPage, KaryawanProfilePage
+    AboutOverviewPage, AboutPage, BlogDetailPage, BlogPage, CareersPage, ContactPage, DentalClinicDataPage,
+    DoctorsPage, DoctorProfilePage, FacilitiesPage, FacilityDetailPage, InformationPage, navItems,
+    PartnersPage, ReferenceHome, ServiceDetailPage, ServicesPage, SiteFooter, KaryawanPage, KaryawanProfilePage
 } from './pages/index.jsx';
 import AdminApp from './admin/AdminApp.jsx';
 import Seo from './components/Seo.jsx';
@@ -32,6 +32,7 @@ function App() {
     const [roomStart, setRoomStart] = useState(0);
     const [activeTestimonial, setActiveTestimonial] = useState(0);
     const [page, setPage] = useState(() => window.location.hash.slice(1) || 'home');
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleHashChange = () => setPage(window.location.hash.slice(1) || 'home');
@@ -47,6 +48,10 @@ function App() {
     const isHome = page === 'home' || page === 'top';
     const isDoctorProfile = page.startsWith('dokter-profile-');
     const doctorProfileId = page.split('-').pop();
+    const isServiceDetail = page.startsWith('layanan-');
+    const serviceId = page.split('-').pop();
+    const isFacilityDetail = /^fasilitas-\d+$/.test(page);
+    const facilityId = page.split('-').pop();
     const isKaryawanProfile = page.startsWith('karyawan-profile-');
     const karyawanProfileId = page.split('-').pop();
     // Rute artikel dinamis: #blog-<slug> (selain #blog-tonsil yang statis).
@@ -62,20 +67,25 @@ function App() {
             />;
         }
         if (isDoctorProfile) return <DoctorProfilePage doctorId={doctorProfileId} />;
+        if (isServiceDetail) return <ServiceDetailPage serviceId={serviceId} />;
+        if (isFacilityDetail) return <FacilityDetailPage facilityId={facilityId} />;
         if (isKaryawanProfile) return <KaryawanProfilePage karyawanId={karyawanProfileId} />;
         if (isBlogDetail) return <BlogDetailPage slug={blogSlug} />;
 
         switch (page) {
+            case 'tentang-kami': return <AboutOverviewPage />;
             case 'sejarah':
             case 'visi-misi':
             case 'struktur':
             case 'penghargaan': return <AboutPage page={page} />;
             case 'rekanan-mitra': return <PartnersPage />;
             case 'dokter': return <DoctorsPage />;
-            case 'karyawan': return <KaryawanPage />;
+            // URL lama tetap menampilkan direktori dokter agar tidak lagi
+            // mengarah ke data karyawan dummy.
+            case 'karyawan': return <DoctorsPage />;
             case 'jenis-pelayanan':
             case 'rawat-jalan': return <ServicesPage />;
-            case 'poli-gigi': return <DentalClinicPage />;
+            case 'poli-gigi': return <DentalClinicDataPage />;
             case 'fasilitas-umum': return <FacilitiesPage />;
             case 'karir': return <CareersPage />;
             case 'kontak': return <ContactPage />;
@@ -108,9 +118,27 @@ function App() {
                 <a className="brand flex-shrink-0 bg-white px-3 py-1.5 rounded-lg shadow-sm" href="#top" aria-label="Klinik Sehat Bagendit home">
                     <img src="/logo-ksb.png" alt="Klinik Sehat Bagendit" className="h-10 lg:h-12 w-auto" />
                 </a>
+
+                <button
+                    className="mobile-menu-toggle"
+                    type="button"
+                    aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'}
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="primary-navigation"
+                    onClick={() => setMobileMenuOpen((open) => !open)}
+                >
+                    <span></span><span></span><span></span>
+                </button>
                 
                 {/* --- NAVIGASI --- */}
-                <nav className="main-nav flex gap-4 items-center" aria-label="Main navigation">
+                <nav
+                    id="primary-navigation"
+                    className={`main-nav flex gap-4 items-center${mobileMenuOpen ? ' mobile-open' : ''}`}
+                    aria-label="Main navigation"
+                    onClick={(event) => {
+                        if (event.target.closest('a')) setMobileMenuOpen(false);
+                    }}
+                >
                     {navItems.map((item) => {
                         const isActive = item.page === page || 
                                 (item.page === 'home' && isHome) || 

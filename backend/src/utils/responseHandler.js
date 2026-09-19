@@ -3,6 +3,8 @@ export const sendResponse = (res, statusCode, message, data = null) => {
   res.status(statusCode).json({
     status: isSuccess ? 'success' : 'error',
     message,
-    ...(data && { data })
+    // Array kosong adalah respons data yang valid. Jangan menghapusnya dari
+    // payload, karena frontend perlu membedakannya dari respons tanpa data.
+    ...(data !== null && { data })
   });
 };

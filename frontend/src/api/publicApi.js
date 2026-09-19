@@ -4,6 +4,16 @@ import { useEffect, useState } from 'react';
 export const PUBLIC_API_URL =
   (import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api';
 
+const API_ORIGIN = PUBLIC_API_URL.replace(/\/api$/, '');
+
+// URL upload lokal disimpan backend sebagai path relatif (/uploads/...).
+// Saat frontend dan API berbeda origin/port, gunakan URL backend utuh.
+export function urlMedia(url, fallback = '') {
+  if (!url) return fallback;
+  if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
+  return `${API_ORIGIN}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
 // Melakukan GET ke endpoint publik backend dan mengembalikan { data, loading, error }.
 // Bila API gagal, `data` bernilai null sehingga pemanggil dapat memakai data cadangan.
 export function usePublicApi(path, fallback = null) {

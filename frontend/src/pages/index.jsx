@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { usePublicApi, formatTanggal, ambilSetting, ambilKonten, uraiKartu } from '../api/publicApi.js'
+import { usePublicApi, formatTanggal, ambilSetting, ambilKonten, uraiKartu, urlMedia } from '../api/publicApi.js'
 
 const rooms = [
 	{ name: 'Rawat Inap', price: 'Tarif: hubungi klinik', detail: 'Total kapasitas 12 bed', tone: 'mint', image: '/room-suite.svg' },
@@ -33,10 +33,10 @@ const clinicServices = services.map(([icon, name, detail], index) => ({ id: inde
 // --- NAVIGASI SUDAH DIPERBAIKI (HAPUS RAWAT INAP DI LAYANAN) ---
 export const navItems = [
 	{ label: 'Beranda', href: '#top', page: 'home' },
-	{ label: 'Tentang Kami', href: '#sejarah', page: 'tentang-kami', children: [{ label: 'Sejarah Klinik', href: '#sejarah' }, { label: 'Visi dan Misi', href: '#visi-misi' }, { label: 'Struktur Organisasi', href: '#struktur' }, { label: 'Akreditasi', href: '#penghargaan' }] },
+	{ label: 'Tentang Kami', href: '#tentang-kami', page: 'tentang-kami' },
 	{ label: 'Layanan', href: '#jenis-pelayanan', page: 'jenis-pelayanan' },
 	{ label: 'Fasilitas Umum', href: '#fasilitas-umum', page: 'fasilitas-umum' },
-	{ label: 'Karyawan', href: '#karyawan', page: 'karyawan' },
+	{ label: 'Dokter', href: '#dokter', page: 'dokter' },
 	{ label: 'Mitra Klinik', href: '#rekanan-mitra', page: 'rekanan-mitra' },
 	{ label: 'Artikel', href: '#blog', page: 'blog' },
 	{ label: 'Karir', href: '#karir', page: 'karir' },
@@ -99,7 +99,7 @@ const pageBottomActions = {
 	'karir': ['mailto:admin@kliniksehatbagendit.com', 'Kirim lamaran'],
 	'blog': ['#blog-tonsil', 'Baca artikel terbaru'],
 	'blog-tonsil': ['#dokter', 'Cari dokter'],
-	'dokter': ['#karyawan', 'Lihat direktori karyawan'],
+	'dokter': ['#dokter', 'Lihat direktori dokter'],
 	'rawat-jalan': ['#poli-gigi', 'Lihat poliklinik'],
 	'poli-gigi': ['https://wa.me/6282120232032', 'Hubungi poli'],
 }
@@ -127,6 +127,7 @@ export function InformationPage({ page }) {
 
 export function AboutPage({ page }) {
 	const { data } = usePublicApi('/contents')
+	const { data: settings } = usePublicApi('/settings')
 
 	if (page === 'sejarah') {
 	const konten = ambilKonten(data, 'sejarah')
@@ -138,7 +139,7 @@ export function AboutPage({ page }) {
 	]
 	return <section className="reference-page about-history container">
 	<PageHeading eyebrow="Klinik Sehat Bagendit" title="SEJARAH KLINIK" />
-	<div className="history-intro"><img src="/logo-ksb.png" alt="Logo Klinik Sehat Bagendit" /><div className="history-copy">{daftarSejarah.map(([judul, teks]) => <article key={judul}><h2>{judul}</h2><p>{teks}</p></article>)}</div></div>
+	<div className="history-intro"><img src={urlMedia(konten?.imageUrl, '/logo-ksb.png')} alt="Gedung Klinik Sehat Bagendit" /><div className="history-copy">{daftarSejarah.map(([judul, teks]) => <article key={judul}><h2>{judul}</h2><p>{teks}</p></article>)}</div></div>
 	</section>
 	}
 
@@ -154,49 +155,49 @@ export function AboutPage({ page }) {
 
 	if (page === 'struktur') {
         // --- STRUKTUR ORGANISASI FLEXBOX (ANTI-PUTUS) ---
+		const fotoStruktur = (key) => ambilSetting(settings, `struktur_${key}`, '/logo-ksb.png')
 		const orgData = {
-			pimpinan: { title: 'Pimpinan Klinik', name: 'dr. Asep Ichsannurdin', image: '/logo-ksb.png' },
-			pjKlinik: { title: 'Penanggung Jawab Klinik', name: 'dr. Asep Ichsannurdin', image: '/logo-ksb.png' },
+			pimpinan: { title: 'Pimpinan Klinik', name: 'dr. Asep Ichsannurdin', image: fotoStruktur('asep') },
+			pjKlinik: { title: 'Penanggung Jawab Klinik', name: 'dr. Asep Ichsannurdin', image: fotoStruktur('asep') },
 			branches: [
 				{
-					title: 'Penanggung Jawab Adman', name: 'Handri Priyatna', image: '/logo-ksb.png',
+					title: 'Penanggung Jawab Adman', name: 'Handri Priyatna', image: fotoStruktur('handri'),
 					children: [
-						{ title: 'Koor. Keuangan', name: 'Ade Yusuf, S.E', image: '/logo-ksb.png' },
-						{ title: 'Koor. Manajemen Fasilitas & Keselamatan', name: 'Jumyati', image: '/logo-ksb.png' },
-						{ title: 'Koor. Humas & Marketing', name: 'Yudha Anfal G', image: '/logo-ksb.png' }
+						{ title: 'Koor. Keuangan', name: 'Ade Yusuf, S.E', image: fotoStruktur('ade') },
+						{ title: 'Koor. Manajemen Fasilitas & Keselamatan', name: 'Jumyati', image: fotoStruktur('jumyati') },
+						{ title: 'Koor. Humas & Marketing', name: 'Yudha Anfal G', image: fotoStruktur('yudha') }
 					]
 				},
 				{
-					title: 'Penanggung Jawab Mutu/PPI', name: 'dr. Aprina Handayani', image: '/logo-ksb.png',
+					title: 'Penanggung Jawab Mutu/PPI', name: 'dr. Aprina Handayani', image: fotoStruktur('aprina'),
 					children: [
-						{ title: 'Koor. Mutu/Koor. PPI', name: 'Meita Rahayu, S.Kep,Ners', image: '/logo-ksb.png' },
-						{ title: 'Koor. Keselamatan Pasien/ Koor Manajemen Risiko', name: 'Uswatuh Hasanah, S.Kep', image: '/logo-ksb.png' },
-						{ title: 'Koor. K3', name: 'Jumyati', image: '/logo-ksb.png' }
+						{ title: 'Koor. Mutu/Koor. PPI', name: 'Meita Rahayu, S.Kep,Ners', image: fotoStruktur('meita') },
+						{ title: 'Koor. Keselamatan Pasien/ Koor Manajemen Risiko', name: 'Uswatuh Hasanah, S.Kep', image: fotoStruktur('uswatun') },
+						{ title: 'Koor. K3', name: 'Jumyati', image: fotoStruktur('jumyati') }
 					]
 				},
 				{
-					title: 'Penanggung Jawab UKP', name: 'dr. Syahrial', image: '/logo-ksb.png',
+					title: 'Penanggung Jawab UKP', name: 'dr. Syahrial', image: fotoStruktur('syahrial'),
 					children: [
-						{ title: 'Koor. Rawat Jalan', name: 'Hegar Feby Apriana, S.Kep', image: '/logo-ksb.png' },
-						{ title: 'Koor. Rawat Inap', name: 'Uswatuh Hasanah, S.Kep', image: '/logo-ksb.png' },
-						{ title: 'Koor. Poli Gigi & Mulut', name: 'drg. Nita Septiani', image: '/logo-ksb.png' },
-						{ title: 'Koor. Rumah Bersalin & KIA', name: 'Ilmar Munawaroh, A.Md.Keb', image: '/logo-ksb.png' },
-						{ title: 'Koor. Farmasi', name: 'apt. Rahman Surahman, S.Si', image: '/logo-ksb.png' },
-						{ title: 'Koor. Laboratorium', name: 'Susi Nurwinti, A.Md.AK', image: '/logo-ksb.png' },
-						{ title: 'Koor. Rekam Medik', name: 'Fauziah Elsa Nafisah, A.Md.RMIK', image: '/logo-ksb.png' },
-						{ title: 'Koor. Gizi', name: 'Tammy Ajeng Rahayu, AMG', image: '/logo-ksb.png' }
+						{ title: 'Koor. Rawat Jalan', name: 'Hegar Feby Apriana, S.Kep', image: fotoStruktur('hegar') },
+						{ title: 'Koor. Rawat Inap', name: 'Uswatuh Hasanah, S.Kep', image: fotoStruktur('uswatun') },
+						{ title: 'Koor. Poli Gigi & Mulut', name: 'drg. Nita Septiani', image: fotoStruktur('nita') },
+						{ title: 'Koor. Rumah Bersalin & KIA', name: 'Ilmar Munawaroh, A.Md.Keb', image: fotoStruktur('ilmar') },
+						{ title: 'Koor. Farmasi', name: 'apt. Rahman Surahman, S.Si', image: fotoStruktur('rahman') },
+						{ title: 'Koor. Laboratorium', name: 'Susi Nurwinti, A.Md.AK', image: fotoStruktur('susi') },
+						{ title: 'Koor. Rekam Medik', name: 'Fauziah Elsa Nafisah, A.Md.RMIK', image: fotoStruktur('fauziah') },
+						{ title: 'Koor. Gizi', name: 'Tammy Ajeng Rahayu, AMG', image: fotoStruktur('tammy') }
 					]
 				}
 			]
 		};
 
 		const OrgCard = ({ title, name, image }) => (
-			<article className="doctor-card w-[250px] flex-shrink-0 mx-auto relative z-10 flex flex-col text-center shadow-lg bg-white border border-gray-100">
-				<img src={image} alt={name} className="!object-contain !p-4" />
+			<article className="doctor-card org-structure-card w-[250px] flex-shrink-0 mx-auto relative z-10 flex flex-col text-center shadow-lg bg-white border border-gray-100">
+				<img src={image} alt={name} />
 				<div className="doctor-card-body flex flex-col flex-grow">
 					<h2 className="!text-[#fc8a15] !min-h-0 !mb-1">{title}</h2>
 					<p className="!text-[#16594c] !font-bold !text-[13px] !mb-4">{name}</p>
-					<a href="#kontak" className="mt-auto">Informasi Selengkapnya</a>
 				</div>
 			</article>
 		);
@@ -248,7 +249,20 @@ export function AboutPage({ page }) {
 		);
 	}
 
-	return <section className="reference-page about-awards container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="AKREDITASI" /><div className="certificate-frame"><object data="/sertifikat-akreditasi-2023.pdf#view=FitH" type="application/pdf" aria-label="Sertifikat akreditasi Klinik Sehat Bagendit"><p>Sertifikat tidak dapat ditampilkan. <a href="/sertifikat-akreditasi-2023.pdf" target="_blank" rel="noreferrer">Buka sertifikat akreditasi</a>.</p></object></div></section>
+	return <section className="reference-page about-awards container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="AKREDITASI" /><div className="certificate-frame"><object data="/sertifikat-akreditasi.jpg#view=FitH" type="image/jpeg" aria-label="Sertifikat akreditasi Klinik Sehat Bagendit"><p>Sertifikat tidak dapat ditampilkan. <a href="/sertifikat-akreditasi.jpg" target="_blank" rel="noreferrer">Buka sertifikat akreditasi</a>.</p></object></div></section>
+}
+
+// Halaman induk profil: pertahankan struktur setiap bagian yang sudah ada,
+// tetapi sajikan sebagai satu alur halaman yang utuh.
+export function AboutOverviewPage() {
+	return (
+		<div className="about-overview-page">
+			<section id="sejarah"><AboutPage page="sejarah" /></section>
+			<section id="visi-misi"><AboutPage page="visi-misi" /></section>
+			<section id="struktur"><AboutPage page="struktur" /></section>
+			<section id="penghargaan"><AboutPage page="penghargaan" /></section>
+		</div>
+	)
 }
 
 function PageHeading({ eyebrow, title }) {
@@ -276,38 +290,44 @@ const mapDokter = (d) => ({
 	name: d.nama_dokter,
 	specialty: d.spesialisasi || 'Dokter',
 	deskripsi: d.deskripsi || '',
-	image: d.foto_url || '/hospital-hero.svg',
+	image: urlMedia(d.foto_url, '/hospital-hero.svg'),
 	schedules: d.schedules || [],
 })
 
 export function DoctorsPage() {
 	const [query, setQuery] = useState('')
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 12
 	const { data } = usePublicApi('/doctors')
 
-	const sumber = Array.isArray(data) && data.length > 0 ? data.map(mapDokter) : doctors
+	const sumber = Array.isArray(data) ? data.map(mapDokter) : []
 	const filteredDoctors = sumber.filter((doctor) => `${doctor.name} ${doctor.specialty}`.toLowerCase().includes(query.toLowerCase()))
+	const totalPages = Math.ceil(filteredDoctors.length / itemsPerPage)
+	const paginatedDoctors = filteredDoctors.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-	return <section className="reference-page doctors-page container"><div className="doctors-heading"><PageHeading eyebrow="Klinik Sehat Bagendit" title="DOKTER" /><p>Direktori tenaga kesehatan Klinik Sehat Bagendit.</p></div><form className="doctor-search" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari nama atau bidang..." aria-label="Cari karyawan" /><button type="submit">Cari</button></form><div className="doctor-grid">{filteredDoctors.map((doctor) => <article className="doctor-card" key={doctor.id}><img src={doctor.image} alt={doctor.name} /><div className="doctor-card-body"><h2>{doctor.name}</h2><p>{doctor.specialty}</p><a href={`#dokter-profile-${doctor.id}`}>Lihat Profil</a></div></article>)}</div>{filteredDoctors.length === 0 && <p className="empty-search">Dokter tidak ditemukan. Coba kata kunci lain.</p>}</section>
+	return <section className="reference-page doctors-page container pb-20"><div className="doctors-heading"><PageHeading eyebrow="Klinik Sehat Bagendit" title="DIREKTORI DOKTER" /><p>Dokter aktif Klinik Sehat Bagendit. Data dan jadwal diperbarui melalui CMS.</p></div><form className="doctor-search max-w-3xl mx-auto mb-12" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => { setQuery(event.target.value); setCurrentPage(1) }} placeholder="Cari berdasarkan nama atau spesialisasi..." aria-label="Cari dokter" /><button type="submit">Cari</button></form><div className="doctor-grid">{paginatedDoctors.map((doctor) => <article className="doctor-card shadow-lg" key={doctor.id}><img src={doctor.image} alt={doctor.name} /><div className="doctor-card-body"><h2 className="!text-[#16594c] !font-bold !text-[16px] !mb-1">{doctor.name}</h2><p className="!text-[#fc8a15] !font-semibold">{doctor.specialty}</p><a href={`#dokter-profile-${doctor.id}`}>Lihat Profil</a></div></article>)}</div>{filteredDoctors.length === 0 && <p className="empty-search">Belum ada dokter aktif yang sesuai.</p>}{totalPages > 1 && <div className="flex justify-center items-center gap-4 mt-12"><button onClick={() => setCurrentPage((page) => Math.max(page - 1, 1))} disabled={currentPage === 1} className="px-5 py-2 rounded-lg bg-white border border-[#fc8a15] text-[#fc8a15] font-bold disabled:opacity-40 hover:bg-[#fc8a15] hover:text-white transition-colors">&laquo; Sebelumnya</button><span className="font-bold text-[#16594c]">Halaman {currentPage} dari {totalPages}</span><button onClick={() => setCurrentPage((page) => Math.min(page + 1, totalPages))} disabled={currentPage === totalPages} className="px-5 py-2 rounded-lg bg-white border border-[#fc8a15] text-[#fc8a15] font-bold disabled:opacity-40 hover:bg-[#fc8a15] hover:text-white transition-colors">Selanjutnya &raquo;</button></div>}</section>
 }
 
 export function DoctorProfilePage({ doctorId }) {
 	const { data } = usePublicApi(`/doctors/${doctorId}`)
 	const apiDoctor = Array.isArray(data) ? data[0] : data
-	const doctor = apiDoctor ? mapDokter(apiDoctor) : (doctors.find((item) => item.id === Number(doctorId)) || doctors[1] || doctors[0])
+	const doctor = apiDoctor ? mapDokter(apiDoctor) : null
+	if (!doctor) return <section className="reference-page doctor-profile-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="PROFIL DOKTER" /><p className="empty-search">Data dokter tidak ditemukan atau sudah tidak aktif.</p><a href="#dokter">Kembali ke daftar dokter</a></section>
 
 	const jadwal = doctor.schedules || []
 
-	return <section className="reference-page doctor-profile-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="PROFIL DOKTER" /><div className="doctor-profile-card"><div className="profile-photo"><img src={doctor.image} alt={doctor.name} /><a href="#dokter">Kembali ke Daftar Dokter</a></div><div className="profile-copy"><h1>{doctor.name}</h1><span className="specialty-pill">{doctor.specialty}</span><section><h2>Profil</h2><p>{doctor.deskripsi || 'Informasi profil dan kompetensi akan diperbarui oleh admin klinik.'}</p></section><section><h2>Jadwal</h2>{jadwal.length > 0 ? <ul>{jadwal.map((s) => <li key={s.id}>{s.hari}: {s.jam_mulai} - {s.jam_selesai}</li>)}</ul> : <p>Jadwal layanan dapat diperbarui saat data tersedia.</p>}</section></div></div></section>
+	return <section className="bg-[#f4f7f9] min-h-screen py-10 w-full px-4 lg:px-8"><div className="container mx-auto max-w-5xl"><div className="mb-6 border-b border-gray-300 pb-2"><span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Klinik Sehat Bagendit</span><h2 className="text-2xl font-bold text-[#344353]">PROFIL DOKTER</h2></div><div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-2xl shadow-xl overflow-hidden mb-8"><div className="bg-[#d8f2ef] p-8 flex flex-col items-center justify-center"><img src={doctor.image} alt={doctor.name} className="w-48 h-56 object-contain p-4 rounded-xl bg-white shadow-sm mb-6" /><a href="#dokter" className="bg-[#009378] hover:bg-teal-700 text-white text-xs font-bold py-3 px-6 rounded-full transition-colors shadow-md">Kembali ke Daftar Dokter</a></div><div className="md:col-span-2 p-8 lg:p-10"><h1 className="text-3xl font-bold text-[#344353] mb-4">{doctor.name}</h1><span className="inline-block bg-[#eaf4ef] text-[#009378] font-bold px-5 py-2 rounded-full text-sm mb-8 border border-[#c4e3d5]">{doctor.specialty}</span><div className="mb-8"><h3 className="text-lg font-bold text-[#344353] border-b-2 border-[#fc8a15] pb-2 mb-4 inline-block">Profil</h3><p className="text-gray-600 text-sm leading-relaxed">{doctor.deskripsi || 'Informasi profil dan kompetensi akan diperbarui oleh admin klinik.'}</p></div><div><h3 className="text-lg font-bold text-[#344353] border-b-2 border-[#fc8a15] pb-2 mb-4 inline-block">Jadwal Praktik</h3>{jadwal.filter((schedule) => schedule.status_aktif !== false).length > 0 ? <ul className="space-y-2">{jadwal.filter((schedule) => schedule.status_aktif !== false).map((schedule) => <li key={schedule.id} className="text-gray-600 text-sm"><strong>{schedule.hari}</strong>: {schedule.jam_mulai} - {schedule.jam_selesai}</li>)}</ul> : <p className="text-gray-600 text-sm">Jadwal praktik belum tersedia.</p>}</div></div></div></div></section>
 }
 
 // Memetakan data layanan dari API ke bentuk yang dipakai komponen.
 const mapLayanan = (s, index) => ({
 	id: s.id,
 	name: s.nama,
+	kategori: s.kategori,
 	short: (s.nama || '').toUpperCase(),
 	icon: ['✦', '⌁', '◒', '＋'][index % 4],
 	detail: s.deskripsi || s.kategori || '',
-	image: s.foto_url || '/hospital-hero.svg',
+	image: urlMedia(s.foto_url, '/hospital-hero.svg'),
 })
 
 export function ServicesPage() {
@@ -317,7 +337,17 @@ export function ServicesPage() {
 	const sumber = Array.isArray(data) && data.length > 0 ? data.map(mapLayanan) : clinicServices
 	const filteredServices = sumber.filter((service) => `${service.name} ${service.short}`.toLowerCase().includes(query.toLowerCase()))
 
-	return <section className="reference-page services-directory container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="RAWAT JALAN" /><form className="service-search" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari Layanan" aria-label="Cari poliklinik" /><button type="submit">Cari</button></form><div className="clinic-grid">{filteredServices.map((service, index) => <article className={`clinic-card clinic-tone-${index % 6}`} key={service.id}><div className="clinic-card-art"><span className="clinic-logo">✚</span><span className="clinic-medal">✦</span><div className="clinic-icon">{service.icon}</div><small>Klik Di Sini</small></div><div className="clinic-card-body"><p>Klinik</p><h2>{service.short}</h2><span>{service.detail}</span><a href={service.id === 2 ? '#poli-gigi' : '#dokter'}>Lihat Detail <b>↗</b></a></div></article>)}</div>{filteredServices.length === 0 && <p className="empty-search">Poliklinik tidak ditemukan.</p>}</section>
+	return <section className="reference-page services-directory container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="LAYANAN KESEHATAN" /><form className="service-search" onSubmit={(event) => event.preventDefault()}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari Layanan" aria-label="Cari layanan kesehatan" /><button type="submit">Cari</button></form><div className="clinic-grid">{filteredServices.map((service, index) => <article className={`clinic-card clinic-tone-${index % 6}`} key={service.id}><div className="clinic-card-art"><img src={service.image} alt="" /><span className="clinic-logo">✚</span><div className="clinic-icon">{service.icon}</div></div><div className="clinic-card-body"><p>{service.kategori || 'Klinik'}</p><h2>{service.short}</h2><span>{service.detail}</span><a href={`#layanan-${service.id}`}>Lihat Detail <b>↗</b></a></div></article>)}</div>{filteredServices.length === 0 && <p className="empty-search">Layanan kesehatan tidak ditemukan.</p>}</section>
+}
+
+export function ServiceDetailPage({ serviceId }) {
+	const { data } = usePublicApi(`/services/${serviceId}`)
+	const service = data && data.id ? data : null
+
+	if (!service) return <section className="reference-page services-directory container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="LAYANAN" /><p className="empty-search">Layanan tidak ditemukan.</p><a href="#jenis-pelayanan">Kembali ke daftar layanan</a></section>
+
+	const image = urlMedia(service.foto_url, '/hospital-hero.svg')
+	return <section className="detail-page"><header className="detail-hero"><div><p>{service.kategori || 'Layanan Klinik'}</p><h1>{service.nama}</h1><span>Pelayanan kesehatan Klinik Sehat Bagendit</span></div><img src={image} alt={service.nama} /></header><div className="detail-content container"><article className="detail-main"><h2>Tentang {service.nama}</h2><p>{service.deskripsi || 'Informasi layanan akan diperbarui oleh admin klinik.'}</p><h3>Informasi Pelayanan</h3><div className="detail-feature-grid"><span>✓ Dilayani oleh tenaga kesehatan klinik</span><span>✓ Informasi pendaftaran tersedia di klinik</span><span>✓ Ketersediaan mengikuti layanan operasional</span><span>✓ Konsultasikan kebutuhan Anda terlebih dahulu</span></div></article><aside className="detail-info-card"><h2>Informasi Layanan</h2><p><strong>Jenis layanan</strong><br />{service.kategori || 'Pelayanan klinik'}</p><p><strong>Pendaftaran</strong><br />Hubungi klinik atau datang langsung</p><p><strong>Jam layanan</strong><br />Sesuai jam operasional klinik</p><a href="#kontak">Hubungi Kami</a></aside></div><section className="detail-cta"><h2>Butuh informasi sebelum berkunjung?</h2><p>Tim Klinik Sehat Bagendit siap membantu mengarahkan kebutuhan layanan Anda.</p><a href="#jenis-pelayanan">Kembali ke Layanan Kesehatan</a></section></section>
 }
 
 const dentalDoctors = [doctors[1]]
@@ -350,13 +380,45 @@ export function DentalClinicPage() {
 	</section>
 }
 
+// Poli Gigi memakai data dokter dan jadwal yang sama dengan direktori publik.
+export function DentalClinicDataPage() {
+	const { data } = usePublicApi('/doctors')
+	const { data: settings } = usePublicApi('/settings')
+	const dentalDoctors = Array.isArray(data)
+		? data.filter((doctor) => /gigi/i.test(doctor.spesialisasi || '')).map(mapDokter)
+		: []
+	const dentalBanner = ambilSetting(settings, 'poli_gigi_banner', '/hospital-hero.svg')
+	const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
+	const jamPadaHari = (doctor, day) => doctor.schedules
+		.filter((schedule) => schedule.status_aktif !== false && schedule.hari === day)
+		.map((schedule) => `${schedule.jam_mulai.slice(0, 5)} - ${schedule.jam_selesai.slice(0, 5)}`)
+		.join(', ') || '-'
+
+	return <section className="dental-page"><PageHeading eyebrow="Klinik Sehat Bagendit" title="POLIKLINIK GIGI" /><header className="dental-banner"><h1>Poliklinik Gigi</h1><p>Pemeriksaan dan tindakan kesehatan gigi serta mulut.</p></header><div className="dental-content container"><section className="dental-intro"><img src={urlMedia(dentalBanner, '/hospital-hero.svg')} alt="Poliklinik Gigi Klinik Sehat Bagendit" /><div><h2>Tentang Poliklinik Gigi</h2><p>Poliklinik Gigi melayani pemeriksaan kesehatan gigi dan mulut, pengobatan, serta tindakan medis dasar sesuai kebutuhan pasien.</p><h3>Cara Pendaftaran</h3><div className="condition-grid"><span>● Pendaftaran H-1 melalui JKN Mobile untuk pasien BPJS antrean 1–4.</span><span>● Pendaftaran langsung di klinik untuk pasien umum dan BPJS non-JKN.</span><span>● Kuota: 8 pasien BPJS dan 7 pasien umum.</span></div></div></section><section className="dental-doctors"><h2>Dokter Poliklinik Gigi</h2><div className="dental-doctor-grid">{dentalDoctors.map((doctor) => <article key={doctor.id}><img src={doctor.image} alt={doctor.name} /><h3>{doctor.name}</h3><span>{doctor.specialty}</span><a href={`#dokter-profile-${doctor.id}`}>⌕ Profil</a></article>)}</div>{Array.isArray(data) && dentalDoctors.length === 0 && <p className="empty-search">Jadwal dokter gigi belum tersedia.</p>}</section><section className="dental-schedule"><h2>Jadwal Praktik Dokter</h2><div className="dental-table-wrap"><table><thead><tr><th>NO</th><th>NAMA DOKTER</th>{days.map((day) => <th key={day}>{day.toUpperCase()}</th>)}</tr></thead><tbody>{dentalDoctors.map((doctor, index) => <tr key={doctor.id}><td>{index + 1}</td><td>{doctor.name}</td>{days.map((day) => <td key={day}>{jamPadaHari(doctor, day)}</td>)}</tr>)}</tbody></table></div></section><section className="dental-cta"><div><span>Butuh Konsultasi?</span><h2>Jadwalkan kunjungan Anda ke Poliklinik Gigi.</h2></div><div><a href="https://wa.me/6282120232032">☎ Hubungi Kami</a><a href="#kontak">⌖ Lihat Lokasi</a></div></section></div></section>
+}
+
 export function FacilitiesPage() {
 	const { data } = usePublicApi('/facilities')
 
-	const daftar = Array.isArray(data) && data.length > 0
-	? data.map((f) => [f.nama, f.deskripsi || '', 'Setiap hari', 'Lihat lokasi', f.foto_url || '/hospital-hero.svg'])
-	: facilities
-	return <section className="reference-page facilities-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="FASILITAS UMUM" /><p className="facilities-lead">BERBAGAI FASILITAS PENUNJANG UNTUK KENYAMANAN PASIEN DAN PENGUNJUNG</p><div className="facility-grid">{daftar.map(([name, text, hours, action, image]) => <article className="facility-card" key={name}><img src={image} alt={name} /><div><h2>{name}</h2><p>{text}</p><small>◷ {hours}</small><a href="#kontak">{action} <b>→</b></a></div></article>)}</div></section>
+	const daftar = Array.isArray(data)
+	? data.map((f) => [f.nama, f.deskripsi || 'Informasi fasilitas akan diperbarui oleh admin klinik.', 'Tersedia di area klinik', 'Tanyakan ketersediaan', urlMedia(f.foto_url, '/hospital-hero.svg')])
+	: []
+	const cards = Array.isArray(data) ? data.map((facility) => ({
+		id: facility.id,
+		name: facility.nama,
+		text: facility.deskripsi || 'Informasi fasilitas akan diperbarui oleh admin klinik.',
+		image: urlMedia(facility.foto_url, '/hospital-hero.svg'),
+	})) : []
+	return <section className="reference-page facilities-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="FASILITAS KLINIK" /><p className="facilities-lead">FASILITAS PENUNJANG UNTUK KENYAMANAN PASIEN DAN PENGUNJUNG. HUBUNGI KLINIK UNTUK MEMASTIKAN KETERSEDIAANNYA.</p><div className="facility-grid">{cards.map((facility) => <article className="facility-card" key={facility.id}><img src={facility.image} alt={facility.name} /><div><h2>{facility.name}</h2><p>{facility.text}</p><small>• Tersedia di area klinik</small><a href={`#fasilitas-${facility.id}`}>Lihat Detail <b>→</b></a></div></article>)}</div>{Array.isArray(data) && cards.length === 0 && <p className="empty-search">Belum ada fasilitas yang dipublikasikan.</p>}</section>
+	return <section className="reference-page facilities-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="FASILITAS KLINIK" /><p className="facilities-lead">FASILITAS PENUNJANG UNTUK KENYAMANAN PASIEN DAN PENGUNJUNG. HUBUNGI KLINIK UNTUK MEMASTIKAN KETERSEDIAANNYA.</p><div className="facility-grid">{daftar.map(([name, text, availability, action, image]) => <article className="facility-card" key={name}><img src={image} alt={name} /><div><h2>{name}</h2><p>{text}</p><small>◷ {availability}</small><a href="#kontak">{action} <b>→</b></a></div></article>)}</div>{Array.isArray(data) && daftar.length === 0 && <p className="empty-search">Belum ada fasilitas yang dipublikasikan.</p>}</section>
+}
+
+export function FacilityDetailPage({ facilityId }) {
+	const { data } = usePublicApi(`/facilities/${facilityId}`)
+	const facility = data && data.id ? data : null
+	if (!facility) return <section className="reference-page facilities-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="FASILITAS KLINIK" /><p className="empty-search">Fasilitas tidak ditemukan.</p><a href="#fasilitas-umum">Kembali ke daftar fasilitas</a></section>
+	const image = urlMedia(facility.foto_url, '/hospital-hero.svg')
+	return <section className="detail-page facility-detail"><header className="detail-hero"><div><p>Fasilitas Klinik</p><h1>{facility.nama}</h1><span>Fasilitas penunjang untuk pasien dan pengunjung</span></div><img src={image} alt={facility.nama} /></header><div className="detail-content container"><article className="detail-main"><h2>Fasilitas {facility.nama}</h2><p>{facility.deskripsi || 'Informasi fasilitas akan diperbarui oleh admin klinik.'}</p><h3>Yang Perlu Diketahui</h3><div className="detail-feature-grid"><span>✓ Ditujukan untuk kenyamanan pasien dan pengunjung</span><span>✓ Ketersediaan dapat dikonfirmasi kepada petugas</span><span>✓ Ikuti arahan dan tata tertib klinik</span></div></article><aside className="detail-info-card"><h2>Informasi Fasilitas</h2><p><strong>Ketersediaan</strong><br />Di area Klinik Sehat Bagendit</p><p><strong>Jam akses</strong><br />Sesuai jam operasional klinik</p><p><strong>Informasi</strong><br />Tanyakan kepada petugas</p><a href="#kontak">Lihat Lokasi & Kontak</a></aside></div><section className="detail-cta"><h2>Perlu bantuan saat berkunjung?</h2><p>Silakan hubungi klinik untuk menanyakan ketersediaan fasilitas.</p><a href="#fasilitas-umum">Kembali ke Fasilitas Klinik</a></section></section>
 }
 
 export function CareersPage() {
@@ -371,18 +433,26 @@ export function CareersPage() {
 export function ContactPage() {
 	const { data } = usePublicApi('/settings')
 	const alamat = ambilSetting(data, 'alamat', 'Jl. Terusan Cinunuk No. 9, Kp. Babakan Baru RT 002/RW 009, Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut')
-	const wa = ambilSetting(data, 'no_whatsapp', '6282120232032')
-	const maps = ambilSetting(data, 'google_maps', 'https://maps.app.goo.gl/kXFHvWo4fhn8qXC78')
-
-	return <section className="contact-reference"><header className="contact-banner"><h1>Hubungi Kami</h1><p>Klinik Sehat Bagendit siap melayani kebutuhan kesehatan dasar Anda.</p></header><div className="contact-reference-content container"><div className="contact-column"><article className="contact-panel"><h2>⌖ &nbsp;Alamat</h2><div><strong>⌂ Lokasi Klinik</strong><p>{alamat}</p><a href={maps} target="_blank" rel="noreferrer">Buka di Google Maps</a></div><div><strong>◷ Rawat Jalan</strong><p>Senin–Minggu<br />07.00–14.00 WIB dan 15.00–20.00 WIB</p></div></article></div><article className="map-panel"><h2>⌖ &nbsp;Lokasi Kami di Peta</h2><a className="map-direct-link" href={maps} target="_blank" rel="noreferrer">Buka lokasi Klinik Sehat Bagendit di Google Maps ↗</a></article></div><section className="hours-section"><h2>◷ Jam Operasional</h2><div><article><strong>Rawat Jalan</strong><span>Setiap hari, 07.00–14.00 & 15.00–20.00 WIB</span></article><article className="emergency-hours"><strong>Rawat Inap</strong><span>Buka 24 Jam Setiap Hari</span></article></div></section></section>
+	const maps = 'https://maps.app.goo.gl/uZQDUBojFcpLwCu79'
+	const mapEmbed = `https://www.google.com/maps?q=klinik sehat bagendit&output=embed`
+	const socials = [
+		{ name: 'Facebook', detail: 'Klinik Sehat Bagendit', href: 'https://www.facebook.com/share/1HEDS5Eawa/', className: 'facebook', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.6 1.6-1.6h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.2v3.2H10V21h3.4Z" /></svg> },
+		{ name: 'Instagram', detail: '@kliniksehatbagendit', href: 'https://www.instagram.com/kliniksehatbagendit?stkn=Ym9udWd2bmlodXM5', className: 'instagram', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle className="icon-fill" cx="17.7" cy="6.7" r="1" /></svg> },
+		{ name: 'TikTok', detail: '@kliniksehatbagendit', href: 'https://www.tiktok.com/@kliniksehatbagendit?_r=1&_t=ZS-99rw05XJTqm', className: 'tiktok', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 3h3.1c.2 2 1.3 3.5 3.7 3.9v3.2a9.1 9.1 0 0 1-3.7-1.2v6.2a6.1 6.1 0 1 1-6.1-6.1c.4 0 .8 0 1.2.1v3.4a2.8 2.8 0 1 0 1.8 2.6V3Z" /></svg> },
+		{ name: 'YouTube', detail: 'Klinik Sehat Bagendit', href: 'https://youtube.com/@kliniksehatbagendit3414?si=2IdlGqIEqoSf5IKX', className: 'youtube', icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.1a3 3 0 0 0-2.1-2.2C19 4.4 12 4.4 12 4.4s-7 0-8.9.5A3 3 0 0 0 1 7.1 31 31 0 0 0 .5 12c0 1.7.2 3.3.5 4.9a3 3 0 0 0 2.1 2.2c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.2c.3-1.6.5-3.2.5-4.9s-.2-3.3-.5-4.9ZM9.7 15.5v-7l6 3.5-6 3.5Z" /></svg> },
+	]
+	const kontakKlinik = [
+		{ nama: 'PIC', nomor: '+62821-1607-4106', tel: '6282116074106' },
+		{ nama: 'Salima', nomor: '+62821-2023-2032', tel: '6282120232032' },
+	]
+	return <section className="contact-reference"><header className="contact-banner"><h1>Hubungi Kami</h1><p>Klinik Sehat Bagendit siap melayani kebutuhan kesehatan dasar Anda.</p></header><div className="contact-reference-content container"><div className="contact-column"><article className="contact-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.09 5.18 2 2 0 0 1 5.08 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L9 10.71a16 16 0 0 0 4.29 4.29l1.25-1.25a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z" /></svg></span> Alamat &amp; Telepon</h2><div><strong>Lokasi Klinik</strong><p>{alamat}</p><a href={maps} target="_blank" rel="noreferrer">Buka di Google Maps ↗</a></div><div className="clinic-whatsapp"><strong>Kontak Klinik</strong>{kontakKlinik.map((kontak) => <div className="clinic-contact" key={kontak.tel}><div className="clinic-contact-heading"><span>{kontak.nama}</span><b>{kontak.nomor}</b></div><a className="clinic-wa-button" href={`https://wa.me/${kontak.tel}`} target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 3.5A11.8 11.8 0 0 0 2 17.7L.5 23.5l6-1.6A11.8 11.8 0 0 0 23.5 11.5a11.7 11.7 0 0 0-3-8ZM12 21a9.5 9.5 0 0 1-4.8-1.3l-.4-.2-3.5.9.9-3.4-.2-.4A9.5 9.5 0 1 1 12 21Zm5.2-7.1c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.2-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1a7.7 7.7 0 0 1-2.3-1.4 8.4 8.4 0 0 1-1.6-2c-.2-.3 0-.4.1-.5l.4-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.1c-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.1 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.6-.7 1.8-1.3.2-.7.2-1.2.1-1.3-.1-.2-.3-.3-.6-.4Z" /></svg>Chat WhatsApp</a></div>)}</div></article><article className="social-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.7 10.7 6.6-4.4m-6.6 7 6.6 4.4" /></svg></span>Media Sosial</h2><p>Ikuti informasi terbaru Klinik Sehat Bagendit melalui kanal resmi kami.</p><div className="social-links">{socials.map((social) => <a key={social.name} className={social.className} href={social.href} target="_blank" rel="noreferrer"><b>{social.icon}</b><span>{social.name}<small>{social.detail}</small></span></a>)}</div></article></div><article className="map-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg></span> Lokasi Kami di Peta</h2><iframe className="mini-map" title="Peta Klinik Sehat Bagendit" src={mapEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /><a className="map-direct-link" href={maps} target="_blank" rel="noreferrer">Buka lokasi Klinik Sehat Bagendit di Google Maps ↗</a></article><section className="hours-section hours-panel"><h2><span className="contact-heading-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></span>Jam Operasional</h2><div><article><strong>Rawat Jalan</strong><span>Setiap hari, 07.00–14.00 &amp; 15.00–20.00 WIB</span></article><article className="emergency-hours"><strong>Rawat Inap</strong><span>Buka 24 Jam Setiap Hari</span></article></div></section></div></section>
 }
-
 export function BlogPage() {
 	const { data } = usePublicApi('/articles?status=published')
 
 	const daftar = Array.isArray(data) && data.length > 0
-	? data.map((a) => [a.judul, a.penulis?.nama_lengkap || 'Admin', formatTanggal(a.created_at), a.status === 'published' ? 'Info Kesehatan' : 'Draft', a.thumbnail_url || '/hospital-hero.svg', (a.konten || '').replace(/<[^>]*>/g, '').slice(0, 140), a.slug])
-	: blogPosts.map((p, i) => [...p, i === 2 ? 'blog-tonsil' : null])
+	? data.map((a) => [a.judul, a.penulis?.nama_lengkap || 'Admin', formatTanggal(a.created_at), a.status === 'published' ? 'Info Kesehatan' : 'Draft', urlMedia(a.thumbnail_url, '/hospital-hero.svg'), (a.konten || '').replace(/<[^>]*>/g, '').slice(0, 140), a.slug])
+	: blogPosts.map((p, i) => [...p, i === 2 ? 'tonsil' : null])
 	return <section className="reference-page blog-page container"><PageHeading eyebrow="Klinik Sehat Bagendit" title="BLOG & ARTIKEL KESEHATAN" /><div className="blog-layout"><div className="blog-list">{daftar.map(([title, author, date, category, image, excerpt, slug]) => <article className="blog-card" key={title}><img src={image} alt={title} /><div><h2>{title}</h2><small>♙ {author} &nbsp; ◷ {date} &nbsp; ▫ {category}</small><p>{excerpt}</p><a href={slug ? `#blog-${slug}` : '#kontak'}>Selengkapnya <b>↗</b></a></div></article>)}</div><aside className="blog-sidebar"><input placeholder="Search..." aria-label="Cari artikel" /><h3>Kategori</h3><a href="#blog">Info Kesehatan</a></aside></div></section>
 }
 
@@ -398,36 +468,69 @@ export function BlogDetailPage({ slug }) {
 }
 
 export function SiteFooter() {
-	return <footer className="site-footer shared-footer container"><div className="footer-brand"><img src="/logo-ksb.png" alt="Logo Klinik Sehat Bagendit" /><p>Klinik Sehat Bagendit</p><small>Jl. Terusan Cinunuk No. 9, Kp. Babakan Baru<br />Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut</small></div><div><h3>Menu</h3><a href="#top">Beranda</a><a href="#sejarah">Sejarah</a><a href="#visi-misi">Visi & Misi</a><a href="#jenis-pelayanan">Layanan</a><a href="#fasilitas-umum">Fasilitas</a><a href="#kontak">Kontak</a></div><div><h3>Jam Pelayanan</h3><p>Rawat jalan: setiap hari<br />07.00–14.00 & 15.00–20.00 WIB</p><p>Rawat inap: 24 jam</p></div><small className="footer-copy">© 2026 Klinik Sehat Bagendit. All rights reserved.</small></footer>
+	return (
+		<footer className="site-footer shared-footer container">
+			<div className="footer-brand">
+				<img src="/logo-ksb.png" alt="Logo Klinik Sehat Bagendit" />
+				<p>Klinik Sehat Bagendit</p>
+				<small>Jl. Terusan Cinunuk No. 9, Kp. Babakan Baru<br />Desa Cipicung, Kecamatan Banyuresmi, Kabupaten Garut</small>
+			</div>
+			<div className="footer-social-column">
+				<h3>Ikuti Kami</h3>
+				<div className="footer-social">
+					<a href="https://www.facebook.com/share/1HEDS5Eawa/" target="_blank" rel="noreferrer" aria-label="Facebook Klinik Sehat Bagendit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.4 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.6 1.6-1.6h1.7V3.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.3H7.2v3.2H10V21h3.4Z" /></svg></a>
+					<a href="https://www.instagram.com/kliniksehatbagendit?stkn=Ym9udWd2bmlodXM5" target="_blank" rel="noreferrer" aria-label="Instagram Klinik Sehat Bagendit"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.7" cy="6.7" r="1" /></svg></a>
+					<a href="https://www.tiktok.com/@kliniksehatbagendit?_r=1&amp;_t=ZS-99rw05XJTqm" target="_blank" rel="noreferrer" aria-label="TikTok Klinik Sehat Bagendit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 3h3.1c.2 2 1.3 3.5 3.7 3.9v3.2a9.1 9.1 0 0 1-3.7-1.2v6.2a6.1 6.1 0 1 1-6.1-6.1c.4 0 .8 0 1.2.1v3.4a2.8 2.8 0 1 0 1.8 2.6V3Z" /></svg></a>
+					<a href="https://youtube.com/@kliniksehatbagendit3414?si=2IdlGqIEqoSf5IKX" target="_blank" rel="noreferrer" aria-label="YouTube Klinik Sehat Bagendit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 7.1a3 3 0 0 0-2.1-2.2C19 4.4 12 4.4 12 4.4s-7 0-8.9.5A3 3 0 0 0 1 7.1 31 31 0 0 0 .5 12c0 1.7.2 3.3.5 4.9a3 3 0 0 0 2.1 2.2c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.2c.3-1.6.5-3.2.5-4.9s-.2-3.3-.5-4.9ZM9.7 15.5v-7l6 3.5-6 3.5Z" /></svg></a>
+				</div>
+			</div>
+			<small className="footer-copy">© 2026 Klinik Sehat Bagendit. All rights reserved.</small>
+		</footer>
+	)
 }
 
-const homePosters = services.map(([, title]) => [title, '/hospital-hero.svg'])
-
 export function ReferenceHome({ activeRoom, setActiveRoom, roomStart, setRoomStart, activeTestimonial, setActiveTestimonial }) {
-	const visibleRooms = rooms.slice(roomStart, roomStart + 2)
-	const roomSlideCount = Math.max(1, rooms.length - 1)
-
-	// Hero banner dinamis dari pengaturan (FR-3.1).
+	const getFacilityPageSize = () => typeof window === 'undefined' ? 4 : window.innerWidth <= 470 ? 1 : window.innerWidth <= 800 ? 2 : 4
+	const [facilityPageSize, setFacilityPageSize] = useState(getFacilityPageSize)
 	const { data: settings } = usePublicApi('/settings')
+	const { data: homeFacilities } = usePublicApi('/facilities')
+	const { data: homeServices } = usePublicApi('/services')
 	const heroBanner = ambilSetting(settings, 'hero_banner', '')
 	const heroTitle = ambilSetting(settings, 'hero_title', 'Klinik Sehat Bagendit')
 	const heroSubtitle = ambilSetting(settings, 'hero_subtitle', 'Pusat layanan kesehatan primer yang berkualitas, nyaman, dan bersahabat di wilayah Kecamatan Banyuresmi dan sekitarnya.')
 	const heroSambutan = ambilSetting(settings, 'sambutan_teks', 'Selamat Datang di')
 	const heroStyle = heroBanner ? { backgroundImage: `url(${heroBanner})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined
+	const fasilitasKlinik = Array.isArray(homeFacilities) && homeFacilities.length > 0
+		? homeFacilities.slice(0, 9).map((facility) => ({ id: facility.id, name: facility.nama, detail: facility.deskripsi || 'Informasi fasilitas dapat ditanyakan langsung kepada klinik.', image: urlMedia(facility.foto_url, '/hospital-hero.svg') }))
+		: facilities.map(([name, detail, , , image], index) => ({ id: index + 1, name, detail, image }))
+	const facilitySlideCount = Math.max(1, Math.ceil(fasilitasKlinik.length / facilityPageSize))
+	const facilityPage = Math.min(roomStart, facilitySlideCount - 1)
+	const visibleFacilities = fasilitasKlinik.slice(facilityPage * facilityPageSize, (facilityPage + 1) * facilityPageSize)
+	const layananUnggulan = Array.isArray(homeServices) && homeServices.length > 0 ? homeServices.map(mapLayanan).slice(0, 9) : clinicServices.slice(0, 9)
+
+	useEffect(() => {
+		const updatePageSize = () => setFacilityPageSize(getFacilityPageSize())
+		window.addEventListener('resize', updatePageSize)
+		return () => window.removeEventListener('resize', updatePageSize)
+	}, [])
+
+	useEffect(() => {
+		if (document.getElementById('elfsight-platform-script')) return
+		const script = document.createElement('script')
+		script.id = 'elfsight-platform-script'
+		script.src = 'https://elfsightcdn.com/platform.js'
+		script.async = true
+		document.body.appendChild(script)
+	}, [])
+
 	return <div className="reference-home">
-	<section className="home-hero-reference"><div className="home-hero-image" style={heroStyle} /><div className="home-hero-overlay"><div className="home-hero-inner container"><p>{heroSambutan}</p><h1>{heroTitle}</h1><span>{heroSubtitle}</span><a href="#jenis-pelayanan">Lihat Layanan <b>↗</b></a></div><div className="hero-dots"><i className="active" /></div></div></section>
+		<section className="home-hero-reference"><div className="home-hero-image" style={heroStyle} /><div className="home-hero-overlay"><div className="home-hero-inner container"><p>{heroSambutan}</p><h1>{heroTitle}</h1><span>{heroSubtitle}</span><a href="#jenis-pelayanan">Lihat Layanan <b>↗</b></a></div><div className="hero-dots"><i className="active" /></div></div></section>
 		<section className="emergency-feature container"><div className="emergency-photo"><img src="/hospital-hero.svg" alt="Klinik Sehat Bagendit" /><span>RAWAT INAP</span></div><div className="emergency-copy"><p className="section-kicker">Pelayanan Klinik</p><h2>Pelayanan Rawat Inap 24 Jam</h2><p>Klinik menyediakan rawat inap dengan kapasitas total 12 bed, termasuk pelayanan observasi dan pertolongan pertama pada kondisi kegawatdaruratan.</p><a className="emergency-button" href="#kontak">Lihat lokasi klinik ↗</a><div className="emergency-tags"><span>◷ Rawat inap 24 jam</span><span>♧ Layanan medis dasar</span></div><small>Rawat jalan setiap hari<br />07.00–14.00 &amp; 15.00–20.00 WIB</small></div></section>
-		<section className="reference-rooms"><div className="container"><div className="reference-section-label">KAMAR RAWAT INAP</div><p className="reference-subtitle">Berbagai pilihan kamar rawat inap yang nyaman untuk proses pemulihan optimal</p><div className="reference-room-track"><button className="round-arrow" onClick={() => setRoomStart(Math.max(0, roomStart - 1))} disabled={roomStart === 0}>‹</button>{visibleRooms.map((room, index) => { const roomIndex = roomStart + index; return <article className={`reference-room-card ${activeRoom === roomIndex ? 'active' : ''}`} key={room.name} onClick={() => setActiveRoom(roomIndex)}><img src={room.image} alt={room.name} /><div><small>{roomIndex === 0 ? 'VIP' : room.name}</small><h3>{room.name}</h3><p>◉ Luas ruangan nyaman<br />◉ Kapasitas {room.detail}</p><strong>{room.price}<em> / malam</em></strong><a href="#kontak">Detail Kamar ↗</a></div></article> })}<button className="round-arrow" onClick={() => setRoomStart(Math.min(roomSlideCount - 1, roomStart + 1))} disabled={roomStart === roomSlideCount - 1}>›</button></div><div className="reference-room-dots">{Array.from({ length: roomSlideCount }, (_, index) => <button className={roomStart === index ? 'active' : ''} key={index} onClick={() => setRoomStart(index)} />)}</div></div></section>
-		<section className="reference-services container"><div className="reference-section-label">LAYANAN KESEHATAN</div><p className="reference-subtitle">Berbagai layanan kesehatan profesional yang tersedia di Klinik Sehat Bagendit</p><div className="poster-grid">{homePosters.map(([title, image]) => <a href="#jenis-pelayanan" className="poster-card" key={title}><img src={image} alt={title} /><span>{title}</span></a>)}</div></section>
-		
-        {/* --- TESTIMONI GOOGLE MAPS --- */}
-        <section className="reference-testimonials">
-<script src="https://elfsightcdn.com/platform.js" async></script>
-<div class="elfsight-app-7a47517c-645a-4eb6-94ba-7ee1315f29e9" data-elfsight-app-lazy></div>
-		</section>
+		<section className="reference-rooms"><div className="container"><div className="reference-section-label">FASILITAS KLINIK</div><p className="reference-subtitle">Fasilitas penunjang untuk kenyamanan pasien dan pengunjung klinik.</p><div className="reference-room-track"><button className="round-arrow" onClick={() => setRoomStart(Math.max(0, facilityPage - 1))} disabled={facilityPage === 0} aria-label="Fasilitas sebelumnya">‹</button>{visibleFacilities.map((facility, index) => { const facilityIndex = facilityPage * facilityPageSize + index; return <article className={`reference-room-card ${activeRoom === facilityIndex ? 'active' : ''}`} key={facility.id || facility.name} onClick={() => setActiveRoom(facilityIndex)}><img src={facility.image} alt={facility.name} /><div><small>Fasilitas Klinik</small><h3>{facility.name}</h3><p>{facility.detail}</p><a href={facility.id ? `#fasilitas-${facility.id}` : '#fasilitas-umum'}>Lihat Fasilitas ↗</a></div></article> })}<button className="round-arrow" onClick={() => setRoomStart(Math.min(facilitySlideCount - 1, facilityPage + 1))} disabled={facilityPage >= facilitySlideCount - 1} aria-label="Fasilitas berikutnya">›</button></div><div className="reference-room-dots">{Array.from({ length: facilitySlideCount }, (_, index) => <button className={facilityPage === index ? 'active' : ''} key={index} onClick={() => setRoomStart(index)} aria-label={`Lihat fasilitas ${index + 1}`} />)}</div><a className="home-view-all" href="#fasilitas-umum">Lihat semua fasilitas →</a></div></section>
+		<section className="reference-services container"><div className="reference-section-label">LAYANAN KESEHATAN</div><p className="reference-subtitle">Berbagai layanan kesehatan profesional yang tersedia di Klinik Sehat Bagendit</p><div className="poster-grid">{layananUnggulan.map((service) => <a href={service.id ? `#layanan-${service.id}` : '#jenis-pelayanan'} className="poster-card" key={service.id || service.name}><img src={service.image || '/hospital-hero.svg'} alt={service.name} /><span>{service.name}</span></a>)}</div><a className="home-view-all" href="#jenis-pelayanan">Lihat seluruh layanan kesehatan →</a></section>
+		<section className="reference-testimonials"><div className="container"><div className="elfsight-app-7a47517c-645a-4eb6-94ba-7ee1315f29e9" data-elfsight-app-lazy="true" /></div></section>
 	</div>
 }
-
 // ==========================================
 // 1. DATA & GENERATOR KARYAWAN DUMI (DIREKTORI 49 STAF)
 // ==========================================
@@ -525,7 +628,7 @@ export function KaryawanPage() {
 			<div className="doctor-grid">
 				{paginatedData.map((person) => (
 					<article className="doctor-card shadow-lg" key={person.id}>
-						<img src={person.image} alt={person.nama} className="!bg-[#eaf4ef] !object-contain !p-4" />
+						<img src={person.image} alt={person.nama} />
 						<div className="doctor-card-body">
 							<h2 className="!text-[#16594c] !font-bold !text-[16px] !mb-1">{person.nama}</h2>
 							<p className="!text-[#fc8a15] !font-semibold">{person.uraian} • {person.klasifikasi}</p>
