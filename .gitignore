@@ -32,3 +32,5 @@ backend/public/uploads/
 Thumbs.db
 .idea/
 .vscode/
+backend/cloudinary-assets.json
+backend/cloudinary-download/
