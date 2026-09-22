@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 
 // URL dasar API publik.
 const API_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
@@ -6,10 +6,12 @@ export const PUBLIC_API_URL = `${API_ORIGIN}/api`;
 
 // URL upload lokal disimpan backend sebagai path relatif (/uploads/...).
 // Saat frontend dan API berbeda origin/port, gunakan URL backend utuh.
+// CATATAN: aset statis frontend (mis. /hospital-hero.svg) dibiarkan relatif.
 export function urlMedia(url, fallback = '') {
   if (!url) return fallback;
   if (/^https?:\/\//i.test(url) || url.startsWith('data:')) return url;
-  return `${API_ORIGIN}${url.startsWith('/') ? url : `/${url}`}`;
+  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`;
+  return url;
 }
 
 // Melakukan GET ke endpoint publik backend dan mengembalikan { data, loading, error }.

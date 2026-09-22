@@ -320,6 +320,28 @@ npm run dev                      # → http://localhost:5173
 
 ---
 
+## 🛠️ Script Bantu Cloudinary (opsional)
+
+Ada tiga script untuk mengelola media di Cloudinary (jalankan dari folder `backend`):
+
+```powershell
+# 1) Lihat daftar semua foto di Cloudinary (--save simpan ke JSON, --download unduh ke lokal)
+node scripts/cloudinary-list.mjs
+node scripts/cloudinary-list.mjs --save
+node scripts/cloudinary-list.mjs --download
+# 2) Hubungkan foto Cloudinary ke database (dokter, struktur, hero banner, dll.)
+node scripts/implement-cloudinary.mjs          # terapkan
+node scripts/implement-cloudinary.mjs --dry     # simulasi saja
+# 3) Hapus gambar SAMPEL BAWAAN Cloudinary (aman, aset klinik dilindungi)
+node scripts/cleanup-cloudinary-samples.mjs         # lihat dulu (dry run)
+node scripts/cleanup-cloudinary-samples.mjs --hapus  # baru hapus
+```
+
+> ℹ️ Script `implement-cloudinary.mjs` berisi URL foto resmi klinik yang mengarah ke Cloud Name `aiz5ufvh`.
+> Jika Anda memakai akun Cloudinary berbeda, sesuaikan `BASE` di dalam script tersebut.
+
+---
+
 ## 🤝 Tips Kolaborasi
 
 - **Jangan commit file `.env`** — setiap komputer punya konfigurasi sendiri (sudah ada di `.gitignore`).
