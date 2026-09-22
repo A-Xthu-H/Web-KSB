@@ -5,12 +5,19 @@ import { sendResponse } from '../utils/responseHandler.js';
 // GET /api/schedules  (publik) — daftar semua jadwal, bisa difilter ?doctor_id=
 export const getAllSchedules = async (req, res) => {
   try {
-    const where = {};
+    // Jadwal ini dipakai oleh pengunjung; hanya jadwal dan dokter aktif yang
+    // boleh tampil di endpoint publik.
+    const where = req.user ? {} : { status_aktif: true };
     if (req.query.doctor_id) where.doctor_id = req.query.doctor_id;
 
     const schedules = await Schedule.findAll({
       where,
-      include: [{ model: Doctor, as: 'doctor', attributes: ['id', 'nama_dokter', 'spesialisasi'] }],
+      include: [{
+        model: Doctor,
+        as: 'doctor',
+        attributes: ['id', 'nama_dokter', 'spesialisasi'],
+        ...(req.user ? {} : { where: { status_aktif: true } }),
+      }],
       order: [['doctor_id', 'ASC'], ['id', 'ASC']],
     });
     sendResponse(res, 200, 'Data jadwal berhasil diambil', schedules);
@@ -23,7 +30,13 @@ export const getAllSchedules = async (req, res) => {
 export const getScheduleById = async (req, res) => {
   try {
     const schedule = await Schedule.findByPk(req.params.id, {
-      include: [{ model: Doctor, as: 'doctor', attributes: ['id', 'nama_dokter', 'spesialisasi'] }],
+      ...(req.user ? {} : { where: { status_aktif: true } }),
+      include: [{
+        model: Doctor,
+        as: 'doctor',
+        attributes: ['id', 'nama_dokter', 'spesialisasi'],
+        ...(req.user ? {} : { where: { status_aktif: true } }),
+      }],
     });
     if (!schedule) return sendResponse(res, 404, 'Jadwal tidak ditemukan');
     sendResponse(res, 200, 'Detail jadwal berhasil diambil', schedule);

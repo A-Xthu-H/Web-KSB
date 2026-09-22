@@ -6,13 +6,13 @@ import {
   updateDoctor,
   deleteDoctor,
 } from '../controllers/doctor.controller.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { optionalToken, verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 // Publik
-router.get('/', getAllDoctors);
-router.get('/:id', getDoctorById);
+router.get('/', optionalToken, getAllDoctors);
+router.get('/:id', optionalToken, getDoctorById);
 
 // Admin (dilindungi JWT)
 router.post('/', verifyToken, createDoctor);
