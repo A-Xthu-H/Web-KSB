@@ -25,7 +25,8 @@ export const entities = {
     createPath: '/schedules',
     idPath: '/schedules',
     fields: [
-      { name: 'doctor_id', label: 'ID Dokter', type: 'number', required: true },
+      // Pilihan dokter diisi oleh CrudManager dari data dokter aktif.
+      { name: 'doctor_id', label: 'Dokter', type: 'select', required: true, options: [] },
       { name: 'hari', label: 'Hari', type: 'select', required: true, options: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map((h) => ({ value: h, label: h })) },
       { name: 'jam_mulai', label: 'Jam Mulai', type: 'time', required: true },
       { name: 'jam_selesai', label: 'Jam Selesai', type: 'time', required: true },

@@ -6,13 +6,13 @@ import {
   updateSchedule,
   deleteSchedule,
 } from '../controllers/schedule.controller.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { optionalToken, verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 // Publik
-router.get('/', getAllSchedules);
-router.get('/:id', getScheduleById);
+router.get('/', optionalToken, getAllSchedules);
+router.get('/:id', optionalToken, getScheduleById);
 
 // Admin (dilindungi JWT)
 router.post('/', verifyToken, createSchedule);

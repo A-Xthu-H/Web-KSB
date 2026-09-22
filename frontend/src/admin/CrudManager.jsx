@@ -13,6 +13,31 @@ export default function CrudManager({ entity }) {
   const [editing, setEditing] = useState(null); // null = create, objek = edit
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
+  const [doctorOptions, setDoctorOptions] = useState([]);
+
+  // Jadwal harus selalu ditautkan ke dokter yang benar. Muat daftar dokter
+  // aktif agar admin tidak perlu menebak ID database.
+  useEffect(() => {
+    if (entity.endpoint !== '/schedules') return undefined;
+    let active = true;
+    api.get('/doctors').then((res) => {
+      if (!active || !res.ok || !Array.isArray(res.data)) return;
+      setDoctorOptions(res.data.filter((doctor) => doctor.status_aktif !== false).map((doctor) => ({
+        value: String(doctor.id),
+        label: `${doctor.nama_dokter}${doctor.spesialisasi ? ` — ${doctor.spesialisasi}` : ''}`,
+      })));
+    });
+    return () => { active = false; };
+  }, [entity.endpoint]);
+
+  const formEntity = entity.endpoint === '/schedules'
+    ? {
+      ...entity,
+      fields: entity.fields.map((field) => field.name === 'doctor_id'
+        ? { ...field, options: doctorOptions }
+        : field),
+    }
+    : entity;
 
   const load = async () => {
     setLoading(true);
@@ -34,7 +59,7 @@ export default function CrudManager({ entity }) {
   const openCreate = () => {
     setEditing(null);
     const initial = {};
-    entity.fields.forEach((f) => {
+    formEntity.fields.forEach((f) => {
       if (f.type === 'select') initial[f.name] = f.options?.[0]?.value;
       else if (f.type === 'number') initial[f.name] = '';
       else initial[f.name] = '';
@@ -46,7 +71,7 @@ export default function CrudManager({ entity }) {
   const openEdit = (item) => {
     setEditing(item);
     const data = {};
-    entity.fields.forEach((f) => {
+    formEntity.fields.forEach((f) => {
       data[f.name] = item[f.name];
     });
     setFormData(data);
@@ -183,7 +208,7 @@ export default function CrudManager({ entity }) {
             </h3>
 
             <div className="space-y-4">
-              {entity.fields.map((f) => (
+              {formEntity.fields.map((f) => (
                 <div key={f.name}>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     {f.label} {f.required && <span className="text-red-500">*</span>}

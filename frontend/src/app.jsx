@@ -6,6 +6,7 @@ import {
 } from './pages/index.jsx';
 import AdminApp from './admin/AdminApp.jsx';
 import Seo from './components/Seo.jsx';
+import { ambilSetting, usePublicApi } from './api/publicApi.js';
 
 // Judul & deskripsi SEO per halaman (bab 6 PRD).
 const SEO_HALAMAN = {
@@ -34,6 +35,8 @@ function App() {
     const [activeTestimonial, setActiveTestimonial] = useState(0);
     const [page, setPage] = useState(() => window.location.hash.slice(1) || 'home');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { data: settings } = usePublicApi('/settings');
+    const nomorWhatsApp = ambilSetting(settings, 'kontak_whatsapp', ambilSetting(settings, 'kontak_salima', '6282120232032'));
 
     useEffect(() => {
         const handleHashChange = () => setPage(window.location.hash.slice(1) || 'home');
@@ -194,11 +197,11 @@ function App() {
 
             {/* --- FLOATING WHATSAPP BUTTON (Berdiri Sendiri) --- */}
             <a 
-                href="https://wa.me/6282120232032" 
+                href={`https://wa.me/${nomorWhatsApp.replace(/\\D/g, '')}`}
                 target="_blank" 
                 rel="noreferrer"
                 className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-3 md:p-4 rounded-full shadow-2xl hover:scale-110 transition-transform duration-300"
-                aria-label="Chat WhatsApp Salima"
+                aria-label="Chat WhatsApp Klinik Sehat Bagendit"
             >
                 {/* INI KODE SVG WHATSAPP YANG BENAR */}
                 <svg className="w-8 h-8 md:w-10 md:h-10" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

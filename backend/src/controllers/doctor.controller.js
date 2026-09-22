@@ -6,8 +6,12 @@ import { sendResponse } from '../utils/responseHandler.js';
 export const getAllDoctors = async (req, res) => {
   try {
     const doctors = await Doctor.findAll({
-      where: { status_aktif: true },
-      include: [{ model: Schedule, as: 'schedules' }],
+      where: req.user ? {} : { status_aktif: true },
+      include: [{
+        model: Schedule,
+        as: 'schedules',
+        ...(req.user ? {} : { where: { status_aktif: true }, required: false }),
+      }],
       order: [['id', 'ASC']],
     });
     sendResponse(res, 200, 'Data dokter berhasil diambil', doctors);
@@ -20,7 +24,12 @@ export const getAllDoctors = async (req, res) => {
 export const getDoctorById = async (req, res) => {
   try {
     const doctor = await Doctor.findByPk(req.params.id, {
-      include: [{ model: Schedule, as: 'schedules' }],
+      ...(req.user ? {} : { where: { status_aktif: true } }),
+      include: [{
+        model: Schedule,
+        as: 'schedules',
+        ...(req.user ? {} : { where: { status_aktif: true }, required: false }),
+      }],
     });
     if (!doctor) return sendResponse(res, 404, 'Dokter tidak ditemukan');
     sendResponse(res, 200, 'Detail dokter berhasil diambil', doctor);

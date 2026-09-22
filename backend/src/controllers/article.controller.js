@@ -25,8 +25,9 @@ const sanitasiKonten = (konten = '') => sanitizeHtml(konten, {
 // GET /api/articles  (publik) — ?status=published untuk filter
 export const getAllArticles = async (req, res) => {
   try {
-    const where = {};
-    if (req.query.status) where.status = req.query.status;
+    // Pengunjung hanya dapat melihat artikel terbit. Panel CMS menyertakan
+    // token admin sehingga tetap dapat melihat serta mengelola draft.
+    const where = req.user ? {} : { status: 'published' };
 
     const articles = await Article.findAll({
       where,
@@ -43,7 +44,9 @@ export const getAllArticles = async (req, res) => {
 export const getArticleBySlug = async (req, res) => {
   try {
     const article = await Article.findOne({
-      where: { slug: req.params.slug },
+      where: req.user
+        ? { slug: req.params.slug }
+        : { slug: req.params.slug, status: 'published' },
       include: [{ model: User, as: 'penulis', attributes: ['id', 'nama_lengkap'] }],
     });
     if (!article) return sendResponse(res, 404, 'Artikel tidak ditemukan');

@@ -6,13 +6,13 @@ import {
   updateArticle,
   deleteArticle,
 } from '../controllers/article.controller.js';
-import { verifyToken } from '../middlewares/auth.middleware.js';
+import { optionalToken, verifyToken } from '../middlewares/auth.middleware.js';
 
 const router = express.Router();
 
 // Publik
-router.get('/', getAllArticles);
-router.get('/:slug', getArticleBySlug);
+router.get('/', optionalToken, getAllArticles);
+router.get('/:slug', optionalToken, getArticleBySlug);
 
 // Admin (dilindungi JWT)
 router.post('/', verifyToken, createArticle);
